@@ -1,0 +1,87 @@
+.reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.reveal__scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgb(6 8 15 / 0.55), rgb(6 8 15 / 0.88));
+  animation: reveal-scrim 260ms ease-out both;
+}
+
+.reveal__card {
+  position: relative;
+  width: min(34rem, 100%);
+  padding: 2rem 2rem 1.6rem;
+  text-align: center;
+  background: linear-gradient(180deg, var(--velvet), var(--stage));
+  border: 1px solid var(--brass);
+  border-radius: 5px;
+  box-shadow:
+    0 0 0 6px rgb(224 169 59 / 0.08),
+    0 30px 70px rgb(0 0 0 / 0.6),
+    inset 0 0 60px color-mix(in srgb, var(--won) 22%, transparent);
+  animation: reveal-card 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reveal__eyebrow {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--chalk-dim);
+}
+
+.reveal__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 6.2vw, 3.1rem);
+  line-height: 1.04;
+  letter-spacing: -0.005em;
+  color: var(--chalk);
+  text-wrap: balance;
+  text-shadow: 0 0 34px color-mix(in srgb, var(--won) 65%, transparent);
+}
+
+.reveal__note {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--chalk-dim);
+}
+
+.reveal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.6rem;
+}
+
+@keyframes reveal-scrim {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes reveal-card {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+    scale: 0.96;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal__scrim,
+  .reveal__card {
+    animation-duration: 1ms;
+  }
+}

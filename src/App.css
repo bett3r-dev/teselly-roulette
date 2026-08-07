@@ -1,0 +1,101 @@
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100%;
+  padding: clamp(0.9rem, 2.2vw, 1.6rem);
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+}
+
+/* ---- masthead ------------------------------------------------------------ */
+
+.masthead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--edge);
+}
+
+.masthead__eyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.masthead__title {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.6vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--chalk);
+}
+
+/* ---- stage --------------------------------------------------------------- */
+
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  min-height: 0;
+}
+
+.stage__wheel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.9rem, 2.4vw, 1.6rem);
+  justify-self: center;
+  width: 100%;
+}
+
+.stage__meta {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chalk-dim);
+  text-align: center;
+}
+
+.stage__meta .dot {
+  color: var(--brass);
+  padding-inline: 0.15em;
+}
+
+.stage > .editor {
+  max-height: min(78vh, 42rem);
+  align-self: center;
+}
+
+/* ---- narrow ------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
+  }
+
+  .stage > .editor {
+    max-height: none;
+  }
+
+  .stage__wheel .wheel {
+    max-width: min(80vw, 26rem);
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .stage__wheel .wheel {
+    max-width: min(62vh, 22rem);
+  }
+}

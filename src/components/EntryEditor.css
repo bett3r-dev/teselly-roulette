@@ -1,0 +1,284 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-height: 0;
+  padding: 1.15rem 1.15rem 1.05rem;
+  background: linear-gradient(180deg, var(--velvet), var(--stage));
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.35);
+}
+
+.editor__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--edge);
+}
+
+.editor__title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.editor__count {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--chalk-dim);
+}
+
+.editor__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge) transparent;
+}
+
+/* Keep the bar visible rather than letting the OS hide it — a half-row of
+   scrolled-off entries otherwise reads as a clipping bug. */
+.editor__list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.editor__list::-webkit-scrollbar-thumb {
+  background: var(--edge);
+  border-radius: 3px;
+}
+
+.editor__list::-webkit-scrollbar-thumb:hover {
+  background: #3d4a69;
+}
+
+.editor__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor__empty {
+  margin: 0;
+  padding: 1.4rem 0.2rem;
+  color: var(--chalk-dim);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ---- rows ---------------------------------------------------------------- */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.12rem 0.1rem 0.12rem 0;
+  border-radius: 3px;
+}
+
+.row:hover {
+  background: rgb(255 255 255 / 0.035);
+}
+
+.row__swatch {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 0.45);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3);
+  cursor: pointer;
+}
+
+.row__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.3rem 0.25rem;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: var(--chalk);
+  font: inherit;
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+}
+
+.row__label:hover:not(:disabled) {
+  border-bottom-color: var(--edge);
+}
+
+.row__label:focus {
+  outline: 0;
+  border-bottom-color: var(--brass);
+}
+
+.row__remove {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--chalk-dim);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease, color 120ms ease, background 120ms ease;
+}
+
+.row:hover .row__remove,
+.row__remove:focus-visible {
+  opacity: 1;
+}
+
+.row__remove:hover {
+  background: rgb(178 58 52 / 0.22);
+  color: #ff9a92;
+}
+
+.row__remove svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  fill: none;
+}
+
+/* ---- add + bulk ---------------------------------------------------------- */
+
+.editor__add {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.editor__input,
+.editor__textarea {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  background: rgb(8 11 20 / 0.6);
+  color: var(--chalk);
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.editor__input::placeholder {
+  color: rgb(154 163 184 / 0.65);
+}
+
+.editor__input:focus,
+.editor__textarea:focus {
+  outline: 0;
+  border-color: var(--brass);
+  box-shadow: 0 0 0 3px rgb(224 169 59 / 0.16);
+}
+
+.editor__bulk {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 0;
+}
+
+.editor__hint {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--chalk-dim);
+}
+
+.editor__textarea {
+  min-height: 15rem;
+  flex: 1 1 auto;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.editor__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* ---- switch -------------------------------------------------------------- */
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--edge);
+  color: var(--chalk-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch__track {
+  flex: none;
+  display: block;
+  width: 2.1rem;
+  height: 1.15rem;
+  padding: 0.15rem;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: rgb(8 11 20 / 0.7);
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.switch__knob {
+  display: block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--chalk-dim);
+  transition: translate 140ms ease, background 140ms ease;
+}
+
+.switch input:checked + .switch__track {
+  background: rgb(224 169 59 / 0.25);
+  border-color: var(--brass);
+}
+
+.switch input:checked + .switch__track .switch__knob {
+  translate: 0.95rem 0;
+  background: var(--brass);
+}
+
+.switch input:focus-visible + .switch__track {
+  outline: 2px solid var(--bulb);
+  outline-offset: 2px;
+}
+
+.switch:has(input:checked) .switch__text {
+  color: var(--chalk);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch__track,
+  .switch__knob,
+  .row__remove {
+    transition: none;
+  }
+}

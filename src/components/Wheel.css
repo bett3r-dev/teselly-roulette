@@ -1,0 +1,178 @@
+.wheel {
+  position: relative;
+  width: 100%;
+  /* Fit the stage without pushing the page into a scroll. */
+  max-width: min(100%, 640px, calc(100dvh - 13rem));
+  aspect-ratio: 1;
+  margin-inline: auto;
+  isolation: isolate;
+}
+
+.wheel__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ---- face ---------------------------------------------------------------- */
+
+.wheel__face {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.seg__label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-stretch: 74%;
+  letter-spacing: 0.015em;
+  paint-order: stroke;
+}
+
+.seg__rule {
+  stroke: rgb(14 10 6 / 0.32);
+  stroke-width: 0.7;
+}
+
+.seg--won path:first-child {
+  filter: brightness(1.22) saturate(1.1);
+}
+
+.peg {
+  fill: #e8ca86;
+  stroke: rgb(60 40 8 / 0.55);
+  stroke-width: 0.5;
+}
+
+.wheel__rim {
+  fill: none;
+  stroke: var(--brass);
+  filter: drop-shadow(0 2px 6px rgb(0 0 0 / 0.55));
+}
+
+.wheel__shadow {
+  fill: none;
+  stroke: rgb(0 0 0 / 0.4);
+  stroke-width: 2.5;
+}
+
+.wheel__blank {
+  fill: var(--velvet);
+  stroke: rgb(255 255 255 / 0.08);
+  stroke-width: 1;
+  stroke-dasharray: 5 7;
+}
+
+.wheel__hubplate {
+  stroke: rgb(60 40 8 / 0.6);
+  stroke-width: 1.2;
+  filter: drop-shadow(0 3px 7px rgb(0 0 0 / 0.6));
+}
+
+/* ---- marquee ring -------------------------------------------------------- */
+
+.bulb {
+  fill: #39405a;
+  stroke: rgb(255 255 255 / 0.09);
+  stroke-width: 0.6;
+  transition: fill 90ms linear;
+}
+
+.bulb--lit {
+  fill: var(--bulb);
+  filter: drop-shadow(0 0 4px rgb(255 214 130 / 0.85));
+}
+
+.bulbs--idle .bulb {
+  animation: bulb-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes bulb-breathe {
+  0%,
+  70%,
+  100% {
+    fill: #39405a;
+  }
+  35% {
+    fill: #8d7a4a;
+  }
+}
+
+.wheel--celebrating .bulb {
+  animation: bulb-flash 0.26s steps(1, end) infinite;
+}
+
+@keyframes bulb-flash {
+  0% {
+    fill: var(--bulb);
+    filter: drop-shadow(0 0 6px rgb(255 214 130 / 0.95));
+  }
+  50% {
+    fill: #39405a;
+    filter: none;
+  }
+}
+
+/* ---- pointer ------------------------------------------------------------- */
+
+.pointer__blade,
+.pointer__pin {
+  stroke: rgb(58 38 6 / 0.7);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 3px 5px rgb(0 0 0 / 0.6));
+}
+
+/* ---- spin control -------------------------------------------------------- */
+
+.spin {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  width: 15.7%;
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #3d2807;
+  font-family: var(--font-display);
+  font-size: clamp(0.7rem, 2.1vw, 1.05rem);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: scale 140ms ease, color 140ms ease;
+}
+
+.spin:hover:not(:disabled) {
+  scale: 1.07;
+  color: #24170a;
+}
+
+.spin:active:not(:disabled) {
+  scale: 0.96;
+}
+
+.spin:disabled {
+  cursor: default;
+  color: rgb(61 40 7 / 0.55);
+}
+
+.spin:focus-visible {
+  outline: 3px solid var(--bulb);
+  outline-offset: 6px;
+}
+
+.spin__word {
+  display: block;
+  translate: 0 -0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bulbs--idle .bulb,
+  .wheel--celebrating .bulb {
+    animation: none;
+  }
+  .spin {
+    transition: none;
+  }
+}
