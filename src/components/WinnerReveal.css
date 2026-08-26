@@ -1,87 +1,117 @@
+/*
+ * El anuncio del ganador. Ocupa la pantalla entera y no un rincón: en un
+ * televisor de 65" el resultado es EL momento, y tiene que leerse desde el
+ * fondo de la sala.
+ */
+
 .reveal {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: 40;
   display: grid;
   place-items: center;
-  padding: 1.5rem;
+  padding: 4rem;
 }
 
 .reveal__scrim {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgb(6 8 15 / 0.55), rgb(6 8 15 / 0.88));
-  animation: reveal-scrim 260ms ease-out both;
-}
-
-.reveal__card {
-  position: relative;
-  width: min(34rem, 100%);
-  padding: 2rem 2rem 1.6rem;
-  text-align: center;
-  background: linear-gradient(180deg, var(--velvet), var(--stage));
-  border: 1px solid var(--brass);
-  border-radius: 5px;
-  box-shadow:
-    0 0 0 6px rgb(224 169 59 / 0.08),
-    0 30px 70px rgb(0 0 0 / 0.6),
-    inset 0 0 60px color-mix(in srgb, var(--won) 22%, transparent);
-  animation: reveal-card 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.reveal__eyebrow {
-  margin: 0 0 0.85rem;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--chalk-dim);
-}
-
-.reveal__name {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(1.75rem, 6.2vw, 3.1rem);
-  line-height: 1.04;
-  letter-spacing: -0.005em;
-  color: var(--chalk);
-  text-wrap: balance;
-  text-shadow: 0 0 34px color-mix(in srgb, var(--won) 65%, transparent);
-}
-
-.reveal__note {
-  margin: 0.9rem 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: var(--chalk-dim);
-}
-
-.reveal__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.6rem;
+  background: rgb(10 44 50 / 0.86);
+  backdrop-filter: blur(0.75rem);
+  animation: reveal-scrim 320ms ease both;
 }
 
 @keyframes reveal-scrim {
   from {
     opacity: 0;
   }
+  to {
+    opacity: 1;
+  }
+}
+
+.reveal__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+  width: min(100%, 58rem);
+  padding: 5rem 4rem;
+  text-align: center;
+  border: 1px solid rgb(159 232 216 / 0.3);
+  border-radius: 1.5rem;
+  background: linear-gradient(165deg, var(--ink-raised), var(--ink-deep));
+  /* El halo toma el color del gajo ganador, así que la ficha viene teñida de lo
+     que salió — es el único lugar de la pieza donde entra un color de la rueda. */
+  box-shadow:
+    0 0 0 0.5rem rgb(159 232 216 / 0.06),
+    0 0 6rem -1rem var(--won),
+    0 2rem 5rem rgb(0 0 0 / 0.55);
+  animation: reveal-card 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes reveal-card {
   from {
     opacity: 0;
-    translate: 0 14px;
-    scale: 0.96;
+    transform: translateY(1.5rem) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .reveal__scrim,
-  .reveal__card {
-    animation-duration: 1ms;
+.reveal__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0;
+  font-family: var(--font-aktiv);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.55);
+}
+
+.reveal__name {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: 5rem;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: var(--white);
+  text-wrap: balance;
+}
+
+.reveal__note {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 300;
+  color: var(--text-faint);
+}
+
+/* La barra de vuelta al reposo. Va pegada al borde inferior de la ficha, en
+   menta al 40%: tiene que ser legible si se la mira y desaparecer si no. */
+.reveal__timer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 0.25rem;
+  border-radius: 0 0 1.5rem 1.5rem;
+  background: linear-gradient(to right, var(--brand-mid), var(--mint));
+  opacity: 0.4;
+  transform-origin: left center;
+  animation: reveal-drain linear forwards;
+}
+
+@keyframes reveal-drain {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
   }
 }

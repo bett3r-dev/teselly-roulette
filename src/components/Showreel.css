@@ -1,0 +1,259 @@
+/*
+ * LA FRANJA DE ABAJO. Tres piezas apiladas, con aire entre ellas:
+ *
+ *   1. la ficha — escena a la izquierda, texto a la derecha;
+ *   2. la cinta de capacidades;
+ *   3. la cinta de integraciones.
+ *
+ * El aire no es decorativo: la versión anterior metía escena, título, bajada y
+ * avance en una sola columna del alto de la franja, y todo terminaba pegado
+ * contra todo. Al pasar la ficha a dos columnas, el alto que se libera se
+ * reparte entre los tres bloques.
+ */
+
+/*
+ * SEPARADOR C. La franja es una PLACA: fondo más oscuro que el resto de la pieza
+ * y la trama hexagonal más chica y más marcada. Antes la rueda y el contenido
+ * compartían fondo y se leían como una sola mancha; así se lee "acá empieza otra
+ * cosa" sin necesidad de una línea divisoria.
+ *
+ * El fondo va en un pseudo-elemento que se DESBORDA del padding de la pieza
+ * (`inset` negativo), porque la placa tiene que llegar a los bordes de la
+ * pantalla — una placa que arranca a 4rem del borde se lee como una tarjeta, que
+ * es justo lo que no es.
+ */
+.reel {
+  position: relative;
+  display: grid;
+  /* La ficha se lleva todo el alto que sobre; las dos cintas miden lo suyo. */
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  /* Las cintas son pistas `width: max-content` de varios miles de píxeles, y sin
+     acotar la columna se llevarían puesto el ancho de la franja entera. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.8rem;
+  /* Aire entre el canto de la placa y el título. Va como PADDING y no como
+     margen ni como `inset` del pseudo-elemento a propósito: la placa se
+     posiciona contra la caja de borde de `.reel`, que el padding no mueve, así
+     que la línea que separa la rueda del contenido se queda donde está y lo
+     único que baja es el título. De paso, el alto que se lleva sale de la fila
+     `1fr` — o sea del dibujo, que es lo que se quería achicar. */
+  padding-top: 2.4rem;
+  min-height: 0;
+}
+
+.reel::before {
+  content: '';
+  position: absolute;
+  inset: -1.8rem -4rem -2.2rem;
+  z-index: -1;
+  background-color: #071f24;
+  background-image: radial-gradient(circle at 50% 50%, rgb(159 232 216 / 0.07) 1.4px, transparent 1.4px);
+  background-size: 2.4rem 2.4rem;
+  border-top: 1px solid rgb(159 232 216 / 0.1);
+}
+
+/* ---- la ficha ------------------------------------------------------------ */
+
+/* Título arriba, pantalla abajo. El título mide lo que necesite y la pantalla se
+   queda con el resto — al revés, la pantalla le comería renglones al título, que
+   es exactamente lo que no puede pasar en una pieza que se lee de lejos. */
+.reel__card {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  /* Aire entre el título y el dibujo. Con el título en un renglón de versales,
+     1.7rem lo dejaba apoyado encima del dibujo. */
+  gap: 2.8rem;
+  min-height: 0;
+}
+
+/* ---- la bajada ----------------------------------------------------------- */
+
+.reel__caption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+/*
+ * 4.75rem = 76 px de lienzo = 152 px reales en el 4K.
+ *
+ * PESO 600, no 800. El 800 con tracking −0.05 que había antes es el recurso de
+ * la landing para simular un corte condensado, y a este tamaño no funciona: las
+ * letras se tocan y el título se lee como un bloque pesado. El 600 es el peso
+ * que la landing usa en sus PROPIOS títulos (`.mv2-title`, `.ab-h1`), respira, y
+ * es lo que se ve en cualquier landing SaaS moderna.
+ */
+/* Versales, centrado y SIEMPRE en un renglón. El tamaño no es a ojo: el título
+   más largo de la lista es «Gestión multicanal y multiempresa», que en versales
+   a 2.8125rem mide 923 de los 968 px de ancho útil. Cualquier título nuevo que
+   pase de ahí hay que acortarlo, no achicar la tipografía.
+
+   El tracking negativo era para la caja baja; en versales aprieta las letras,
+   así que va casi neutro. Y en un renglón el título pasó de ocupar 155 px a 48:
+   los 107 que sobran se los queda el dibujo. */
+.reel__title {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: 2.8125rem;
+  font-weight: 600;
+  line-height: 1.06;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-align: center;
+  color: var(--white);
+  animation: reel-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+}
+
+@keyframes reel-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.9rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- la pantalla --------------------------------------------------------- */
+
+/*
+ * La pantalla NO es una tarjeta: es un hueco. Sin fondo, sin borde y sin bisel —
+ * el dibujo se apoya directo sobre la placa de la franja. Antes tenía un panel
+ * teal más claro y un filo de menta, y eso metía una caja adentro de otra caja:
+ * la placa ya separa la franja del resto, y un segundo marco adentro sólo achica
+ * el dibujo y ensucia.
+ *
+ * Las fichas que todavía traen su propio panel (los pilares, que son el puerto
+ * de la landing) se lo pintan ellas. Se les va a sacar cuando les toque el turno.
+ *
+ * Tampoco lleva `aspect-ratio`: se queda con el alto que le deje el título y las
+ * escenas se adaptan. Fijarle una proporción fue lo que rompía las versiones
+ * viejas — cuando la caja real no coincidía con la supuesta, todo lo que estaba
+ * puesto en porcentajes se desbordaba o se pisaba.
+ */
+.reel__screen {
+  position: relative;
+  min-height: 0;
+}
+
+/* Las escenas se apilan en el mismo lugar y la entrante cruza por encima: un
+   corte duro entre dos escenas se lee como un error de render, no como un pase. */
+.reel__scene {
+  position: absolute;
+  inset: 0;
+  animation: reel-cut 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes reel-cut {
+  from {
+    opacity: 0;
+    /* Un empujón mínimo hacia adentro: da sensación de pase sin que la escena
+       "salte", que es lo que pasa si el recorrido se nota. */
+    transform: scale(1.035);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- las cintas ---------------------------------------------------------- */
+
+/* Se desbordan a los dos lados del padding de la pieza para morir en los bordes
+   de la pantalla y no en un margen: una cinta que arranca y termina dentro del
+   cuadro deja de leerse como infinita. */
+.marq {
+  position: relative;
+  overflow: hidden;
+  margin-inline: -4rem;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 7rem,
+    #000 calc(100% - 7rem),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 7rem,
+    #000 calc(100% - 7rem),
+    transparent
+  );
+}
+
+.marq__track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+}
+
+.marq__half {
+  display: flex;
+  align-items: center;
+}
+
+@keyframes marq-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Capacidades. Sin viñetas ni pastillas: sólo las palabras, muy espaciadas y
+   separadas por un filo de un pixel. Cualquier adorno acá compite con la escena
+   de arriba, que es lo que la gente tiene que estar mirando. */
+.marq--feat .marq__track {
+  animation: marq-scroll 52s linear infinite;
+}
+
+.marq__word {
+  position: relative;
+  padding-inline: 2.4rem;
+  white-space: nowrap;
+  font-family: var(--font-aktiv);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.42);
+}
+
+.marq__word::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: 1px;
+  height: 1.1em;
+  background: rgb(159 232 216 / 0.28);
+}
+
+/* Integraciones. La fila corre al revés que la de capacidades: dos cintas
+   paralelas en el mismo sentido se leen como una sola cosa que se rompió. */
+.marq--logos {
+  padding-block: 0.4rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.marq--logos .marq__track {
+  animation: marq-scroll 44s linear infinite reverse;
+}
+
+.marq__logo {
+  flex: none;
+  height: var(--logo-h, 2rem);
+  width: auto;
+  margin-inline: 2.6rem;
+  /* Los originales son de colores y algunos son PNG: brightness(0) aplasta todo
+     pixel visible a negro e invert(1) lo levanta a blanco, sin tocar el canal
+     alfa. Es lo que permite que vectores y rásters convivan en la misma fila. */
+  filter: brightness(0) invert(1);
+  opacity: 0.55;
+  transform: translateY(var(--logo-y, 0));
+}

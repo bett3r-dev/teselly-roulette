@@ -1,0 +1,378 @@
+/*
+ * LAS MAQUETAS DEL MAZO DE LA LANDING.
+ *
+ * Los bloques `.fd-stock-*`, `.fd-bill-*`, `.fd-ship-*` y `.fd-notif-*` salen de
+ * `landing/src/components/FeaturesDeck.astro` sin tocar un valor: lo único que
+ * cambió es la UNIDAD, de px a `em`, para que la maqueta escale con la ficha en
+ * vez de quedar clavada mientras el resto de la pieza escala por `rem`.
+ *
+ * La conversión es px / 10,5, que es el tipo base del mazo. No se convirtieron
+ * los `stroke-width` (viven dentro de un viewBox y escalan solos), los pelos de
+ * 1px de los degradados, ni los `border-radius: 999px`.
+ *
+ * También se sacó el prefijo `.fd-card.is-active`: allá las animaciones sólo
+ * corren en la carta del frente, y acá cada ficha está sola en pantalla.
+ *
+ * Sin fondos. En el mazo cada maqueta va sobre una pantalla con degradado teal
+ * más una grilla de líneas; acá la placa de la franja ya es esa superficie.
+ */
+
+.dv {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  height: 78%;
+  width: auto;
+  /* La escala. En la landing la carta se dibuja a `clamp(336px, 44vw, 589px)`
+     con los tipos en px, así que la proporción de escritorio es 589/10,5.
+     Nuestra ficha ronda los 700 px de lienzo. */
+  font-size: 0.8125rem;
+}
+
+/* La maqueta se dibuja sobre un 4:3 y se ancla arriba; la caja visible está
+   recortada porque el tercio de abajo, en el mazo, lo ocupa el epígrafe. Cada
+   ficha declara cuánto recorta con `--crop` (unidades del viewBox de 300). */
+.dv-inner {
+  position: absolute;
+  inset: 0 0 auto;
+  height: calc(100% * 300 / var(--crop));
+}
+
+/* ══ Stock Multi-depósito y Kits — a KIT sale decrements the right component in ONE of its depósitos ══ */
+.fd-stock-sale {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.667em;
+  padding: 0.571em 1.333em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.095em solid rgba(255, 255, 255, 0.16);
+  font-family: var(--font-inter);
+  font-size: 1.095em;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+}
+.fd-stock-sale svg { width: 1.429em; height: 1.429em; color: color-mix(in srgb, var(--accent) 82%, #fff); flex: none; }
+.fd-stock-sale b { color: #ffffff; font-weight: 700; }
+.fd-stock-sale em { font-style: normal; color: var(--accent); font-weight: 700; }
+.fd-stock-sale { animation: fd-stock-sale 3.4s ease-in-out infinite; }
+@keyframes fd-stock-sale {
+  0%, 6% { box-shadow: none; border-color: rgba(255, 255, 255, 0.16); }
+  14% { box-shadow: 0 0 1.714em -0.286em color-mix(in srgb, var(--accent) 70%, transparent); border-color: color-mix(in srgb, var(--accent) 62%, transparent); }
+  34%, 100% { box-shadow: none; border-color: rgba(255, 255, 255, 0.16); }
+}
+.fd-stock-bus { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fd-stock-wire { stroke: rgba(255, 255, 255, 0.15); stroke-width: 1.4; }
+.fd-stock-node { fill: var(--accent); }
+.fd-stock-node { animation: fd-stock-node 3.4s ease-out infinite; }
+@keyframes fd-stock-node { 0%, 22% { filter: none; } 30% { filter: drop-shadow(0 0 0.571em var(--accent)); } 46%, 100% { filter: none; } }
+.fd-stock-flow { stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 10 130; stroke-dashoffset: 10; opacity: 0; filter: drop-shadow(0 0 3px var(--accent)); }
+/* Choreography: ONE pulse trunk→node (4–26%), THEN three pulses node→depots (34–58%). */
+.fd-stock-trunk { animation: fd-stock-trunk 3.4s linear infinite; }
+.fd-stock-branch { animation: fd-stock-branch 3.4s linear infinite; }
+@keyframes fd-stock-trunk {
+  0% { stroke-dashoffset: 10; opacity: 0; }
+  4% { stroke-dashoffset: -1; opacity: 1; }
+  26% { stroke-dashoffset: -95; opacity: 1; }
+  31%, 100% { stroke-dashoffset: -100; opacity: 0; }
+}
+@keyframes fd-stock-branch {
+  0%, 30% { stroke-dashoffset: 10; opacity: 0; }
+  34% { stroke-dashoffset: -1; opacity: 1; }
+  58% { stroke-dashoffset: -95; opacity: 1; }
+  64%, 100% { stroke-dashoffset: -100; opacity: 0; }
+}
+.fd-stock-col {
+  position: absolute;
+  top: 38%;
+  width: 27%;
+  padding: 0.762em 0.857em 0.857em;
+  border-radius: 1.048em;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.095em solid rgba(255, 255, 255, 0.12);
+}
+.fd-stock-col { animation: fd-stock-col 3.4s ease-in-out infinite; }
+@keyframes fd-stock-col {
+  0%, 56% { border-color: rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.05); }
+  64% { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 14%, rgba(20, 60, 66, 0.4)); }
+  86%, 100% { border-color: rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.05); }
+}
+.fd-stock-comp { display: flex; align-items: center; gap: 0.571em; padding-bottom: 0.571em; margin-bottom: 0.571em; border-bottom: 0.095em solid rgba(255, 255, 255, 0.08); }
+.fd-stock-cdot { width: 0.762em; height: 0.762em; border-radius: 0.286em; flex: none; background: color-mix(in srgb, var(--accent) 55%, transparent); border: 0.095em solid color-mix(in srgb, var(--accent) 72%, transparent); }
+.fd-stock-cname { font-family: var(--font-inter); font-size: 1.048em; font-weight: 700; color: #ffffff; }
+.fd-stock-cqty { margin-left: auto; font-family: var(--font-mono, monospace); font-size: 0.905em; font-weight: 700; color: var(--accent); }
+.fd-stock-dep { display: flex; align-items: center; gap: 0.476em; }
+.fd-stock-dep svg { width: 1.143em; height: 1.143em; flex: none; }
+.fd-stock-dep-n { font-family: var(--font-inter); font-weight: 600; white-space: nowrap; }
+.fd-stock-dep--hit svg { color: color-mix(in srgb, var(--accent) 72%, #fff); }
+.fd-stock-dep--hit .fd-stock-dep-n { font-size: 0.905em; color: rgba(255, 255, 255, 0.82); }
+.fd-stock-num { position: relative; margin-left: auto; min-width: 2.476em; text-align: right; }
+.fd-stock-num b { font-family: var(--font-inter); font-size: 1.429em; font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1; }
+.fd-stock-b { position: absolute; right: 0; top: 0; opacity: 0; color: var(--accent) !important; }
+.fd-stock-dep--alt { margin-top: 0.476em; opacity: 0.55; }
+.fd-stock-dep--alt svg { color: rgba(255, 255, 255, 0.42); }
+.fd-stock-dep--alt .fd-stock-dep-n { font-size: 0.81em; font-weight: 500; color: rgba(255, 255, 255, 0.5); }
+.fd-stock-alt-n { margin-left: auto; font-family: var(--font-inter); font-size: 0.952em; font-weight: 600; color: rgba(255, 255, 255, 0.5); }
+.fd-stock-a { animation: fd-stock-a 3.4s ease-in-out infinite; }
+.fd-stock-b { animation: fd-stock-b 3.4s ease-in-out infinite; }
+@keyframes fd-stock-a { 0%, 60% { opacity: 1; } 66%, 92% { opacity: 0; } 98%, 100% { opacity: 1; } }
+@keyframes fd-stock-b { 0%, 60% { opacity: 0; } 66%, 92% { opacity: 1; } 98%, 100% { opacity: 0; } }
+
+
+/* ══ Órdenes y Facturación — an order auto-generates its ARCA/AFIP invoice ══ */
+.fd-bill-wires { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fd-bill-flow { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 10 130; stroke-dashoffset: 10; opacity: 0; filter: drop-shadow(0 0 3px var(--accent)); }
+.fd-bill-flow { animation: fd-omni-flow 3.4s linear infinite; }
+.fd-bill-order {
+  position: absolute;
+  left: 4%;
+  top: 38%;
+  transform: translateY(-50%);
+  width: 30%;
+  padding: 0.857em 0.952em;
+  border-radius: 1.048em;
+  background: rgba(255, 255, 255, 0.06);
+  border: 0.095em solid rgba(255, 255, 255, 0.14);
+}
+.fd-bill-order { animation: fd-pub-src 3.4s ease-in-out infinite; }
+.fd-bill-order-h { display: flex; align-items: center; gap: 0.571em; }
+.fd-bill-order-h svg { width: 1.238em; height: 1.238em; color: color-mix(in srgb, var(--accent) 80%, #ffffff); flex: none; }
+.fd-bill-order-h span { font-family: var(--font-inter); font-size: 0.952em; font-weight: 600; color: #ffffff; }
+.fd-bill-total { display: block; margin-top: 0.571em; font-family: var(--font-inter); font-size: 1.429em; font-weight: 700; color: #ffffff; letter-spacing: -0.01em; }
+.fd-bill-doc {
+  position: absolute;
+  left: 56%;
+  top: 38%;
+  transform: translateY(-50%);
+  width: 40%;
+  padding: 0.952em 1.048em 1.143em;
+  border-radius: 0.952em;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1.524em 3.619em -1.714em rgba(0, 0, 0, 0.55);
+}
+.fd-bill-doc-h { display: flex; align-items: center; gap: 0.571em; padding-bottom: 0.667em; margin-bottom: 0.762em; border-bottom: 0.095em solid rgba(10, 44, 50, 0.12); }
+.fd-bill-doc-dot { width: 0.667em; height: 0.667em; border-radius: 0.19em; background: var(--accent); flex: none; }
+.fd-bill-doc-t { font-family: var(--font-inter); font-size: 0.952em; font-weight: 700; color: #0a2c32; letter-spacing: 0.02em; }
+.fd-bill-doc-pv { margin-left: auto; font-family: var(--font-mono, monospace); font-size: 0.714em; color: rgba(10, 44, 50, 0.48); white-space: nowrap; }
+.fd-bill-row { display: block; height: 0.476em; border-radius: 0.286em; background: rgba(10, 44, 50, 0.16); margin-bottom: 0.667em; width: 0; }
+.fd-bill-row[data-r="0"] { animation: fd-bill-row0 3.4s ease-out infinite; }
+.fd-bill-row[data-r="1"] { animation: fd-bill-row1 3.4s ease-out 0.14s infinite; }
+.fd-bill-row[data-r="2"] { animation: fd-bill-row2 3.4s ease-out 0.28s infinite; }
+@keyframes fd-bill-row0 { 0%, 26% { width: 0; } 40%, 100% { width: 88%; } }
+@keyframes fd-bill-row1 { 0%, 26% { width: 0; } 40%, 100% { width: 62%; } }
+@keyframes fd-bill-row2 { 0%, 26% { width: 0; } 40%, 100% { width: 78%; } }
+.fd-bill-doc-f { display: flex; justify-content: flex-end; padding-top: 0.667em; margin-top: 0.19em; border-top: 0.095em solid rgba(10, 44, 50, 0.12); }
+.fd-bill-doc-amt { font-family: var(--font-inter); font-size: 1.143em; font-weight: 700; color: #0a2c32; }
+.fd-bill-cae { display: flex; align-items: center; gap: 0.476em; margin-top: 0.667em; padding-top: 0.571em; border-top: 0.095em dashed rgba(10, 44, 50, 0.2); opacity: 0; }
+.fd-bill-cae span { font-family: var(--font-inter); font-size: 0.667em; font-weight: 700; letter-spacing: 0.08em; color: #2a8f6b; }
+.fd-bill-cae b { font-family: var(--font-mono, monospace); font-size: 0.762em; font-weight: 600; letter-spacing: 0.02em; color: rgba(10, 44, 50, 0.66); }
+.fd-bill-cae { animation: fd-bill-cae 3.4s ease-out infinite; }
+@keyframes fd-bill-cae { 0%, 54% { opacity: 0; } 62%, 100% { opacity: 1; } }
+.fd-bill-stamp {
+  position: absolute;
+  right: -0.667em;
+  bottom: -0.857em;
+  display: flex;
+  align-items: center;
+  gap: 0.381em;
+  padding: 0.381em 0.857em;
+  border-radius: 0.571em;
+  background: color-mix(in srgb, var(--accent) 90%, #0a2c32);
+  color: #241a02;
+  font-family: var(--font-inter);
+  font-size: 0.857em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0.571em 1.524em -0.571em rgba(0, 0, 0, 0.5);
+  transform: rotate(-8deg) scale(0.5);
+  opacity: 0;
+}
+.fd-bill-stamp svg { width: 1.048em; height: 1.048em; }
+.fd-bill-stamp { animation: fd-bill-stamp 3.4s ease-out infinite; }
+@keyframes fd-bill-stamp {
+  0%, 48% { opacity: 0; transform: rotate(-8deg) scale(0.5); }
+  58% { opacity: 1; transform: rotate(-8deg) scale(1.14); }
+  66%, 100% { opacity: 1; transform: rotate(-8deg) scale(1); }
+}
+
+
+/* ══ Envíos y Logística — batch labels (QR + barcode) printed + one package tracked end-to-end ══ */
+.fd-ship-labels { position: absolute; top: 10%; left: 5%; right: 5%; display: flex; justify-content: space-between; gap: 0.857em; }
+.fd-ship-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.476em;
+  padding: 0.667em 0.762em 0.762em;
+  border-radius: 0.762em;
+  background: #f4f7f7;
+  box-shadow: 0 1.143em 2.476em -1.143em rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  clip-path: inset(0 0 100% 0); /* printed top→bottom, like paper feeding out of the printer */
+}
+.fd-ship-lb-top { display: flex; align-items: center; justify-content: space-between; gap: 0.381em; padding-bottom: 0.476em; border-bottom: 0.095em solid rgba(10, 44, 50, 0.12); }
+.fd-ship-lb-courier { font-family: var(--font-inter); font-size: 0.81em; font-weight: 700; color: #0a2c32; letter-spacing: 0.01em; white-space: nowrap; }
+.fd-ship-lb-wt { font-family: var(--font-mono, monospace); font-size: 0.714em; font-weight: 600; color: rgba(10, 44, 50, 0.5); white-space: nowrap; }
+.fd-ship-lb-mid { display: flex; align-items: center; gap: 0.667em; }
+.fd-ship-qr-svg { width: 2.857em; height: 2.857em; flex: none; }
+.fd-ship-lb-meta { display: flex; flex-direction: column; gap: 0.095em; min-width: 0; }
+.fd-ship-lb-meta i { font-family: var(--font-inter); font-size: 0.619em; font-style: normal; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(10, 44, 50, 0.42); }
+.fd-ship-lb-meta b { font-family: var(--font-inter); font-size: 0.857em; font-weight: 700; color: #0a2c32; letter-spacing: -0.01em; }
+.fd-ship-lb-zip { font-family: var(--font-mono, monospace); font-size: 0.667em; color: rgba(10, 44, 50, 0.5); white-space: nowrap; }
+.fd-ship-barcode {
+  display: block;
+  height: 1.238em;
+  margin-top: 0.095em;
+  border-radius: 0.095em;
+  background: repeating-linear-gradient(90deg,
+    #0a2c32 0 0.095em, transparent 0.095em 0.286em,
+    #0a2c32 0.286em 0.476em, transparent 0.476em 0.571em,
+    #0a2c32 0.571em 0.667em, transparent 0.667em 0.952em,
+    #0a2c32 0.952em 1.143em, transparent 1.143em 1.238em,
+    #0a2c32 1.238em 1.333em, transparent 1.333em 1.619em);
+}
+.fd-ship-lb-code { font-family: var(--font-mono, monospace); font-size: 0.667em; letter-spacing: 0.14em; color: rgba(10, 44, 50, 0.5); text-align: center; }
+/* Print stagger baked into the keyframes (NOT animation-delay — that only offsets the FIRST loop,
+   then every label prints in sync). Each reveals top→bottom a beat after the previous. */
+.fd-ship-label[data-l="0"] { animation: fd-ship-print0 3.6s ease-out infinite; }
+.fd-ship-label[data-l="1"] { animation: fd-ship-print1 3.6s ease-out infinite; }
+.fd-ship-label[data-l="2"] { animation: fd-ship-print2 3.6s ease-out infinite; }
+@keyframes fd-ship-print0 {
+  0% { opacity: 0; clip-path: inset(0 0 100% 0); }
+  3% { opacity: 1; }
+  15% { clip-path: inset(0 0 0 0); }
+  90%, 100% { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+@keyframes fd-ship-print1 {
+  0%, 5% { opacity: 0; clip-path: inset(0 0 100% 0); }
+  8% { opacity: 1; }
+  20% { clip-path: inset(0 0 0 0); }
+  90%, 100% { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+@keyframes fd-ship-print2 {
+  0%, 10% { opacity: 0; clip-path: inset(0 0 100% 0); }
+  13% { opacity: 1; }
+  25% { clip-path: inset(0 0 0 0); }
+  90%, 100% { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+.fd-ship-track { position: absolute; left: 9%; right: 9%; top: 57%; height: 0; }
+/* rail spans FIRST node → LAST node (no protruding stubs past the ends) */
+.fd-ship-rail { position: absolute; left: 13%; right: 13%; top: 0; height: 0.286em; border-radius: 0.19em; background: rgba(255, 255, 255, 0.16); }
+.fd-ship-fill { position: absolute; left: 13%; top: 0; height: 0.286em; border-radius: 0.19em; width: 0; background: var(--accent); box-shadow: 0 0 0.762em -0.095em var(--accent); }
+.fd-ship-fill { animation: fd-ship-fill 3.6s ease-in-out infinite; }
+@keyframes fd-ship-fill { 0%, 14% { width: 0; } 50% { width: 37%; } 82%, 100% { width: 74%; } }
+.fd-ship-stop { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
+.fd-ship-node { width: 1.048em; height: 1.048em; border-radius: 999px; margin-top: -0.381em; background: #123c44; border: 0.19em solid rgba(255, 255, 255, 0.3); }
+.fd-ship-stop em { margin-top: 0.762em; font-family: var(--font-inter); font-size: 0.857em; font-style: normal; font-weight: 600; color: rgba(255, 255, 255, 0.62); white-space: nowrap; }
+/* Each node lights AS the package reaches it — stagger baked in so it holds every loop, never
+   ahead of the package. Package: node0 @0-14%, node1 @50%, node2 @82%. */
+.fd-ship-stop[data-s="0"] .fd-ship-node { animation: fd-ship-n0 3.6s ease-out infinite; }
+.fd-ship-stop[data-s="1"] .fd-ship-node { animation: fd-ship-n1 3.6s ease-out infinite; }
+.fd-ship-stop[data-s="2"] .fd-ship-node { animation: fd-ship-n2 3.6s ease-out infinite; }
+.fd-ship-stop[data-s="0"] em { animation: fd-ship-em0 3.6s ease-out infinite; }
+.fd-ship-stop[data-s="1"] em { animation: fd-ship-em1 3.6s ease-out infinite; }
+.fd-ship-stop[data-s="2"] em { animation: fd-ship-em2 3.6s ease-out infinite; }
+@keyframes fd-ship-n0 {
+  0% { background: #123c44; border-color: rgba(255, 255, 255, 0.3); box-shadow: none; }
+  6% { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0.952em -0.095em var(--accent); }
+  100% { background: var(--accent); border-color: var(--accent); box-shadow: none; }
+}
+@keyframes fd-ship-n1 {
+  0%, 44% { background: #123c44; border-color: rgba(255, 255, 255, 0.3); box-shadow: none; }
+  50% { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0.952em -0.095em var(--accent); }
+  100% { background: var(--accent); border-color: var(--accent); box-shadow: none; }
+}
+@keyframes fd-ship-n2 {
+  0%, 76% { background: #123c44; border-color: rgba(255, 255, 255, 0.3); box-shadow: none; }
+  82% { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0.952em -0.095em var(--accent); }
+  100% { background: var(--accent); border-color: var(--accent); box-shadow: none; }
+}
+@keyframes fd-ship-em0 { 0% { color: rgba(255, 255, 255, 0.62); } 6% { color: #ffffff; } 100% { color: #ffffff; } }
+@keyframes fd-ship-em1 { 0%, 44% { color: rgba(255, 255, 255, 0.62); } 50% { color: #ffffff; } 100% { color: #ffffff; } }
+@keyframes fd-ship-em2 { 0%, 76% { color: rgba(255, 255, 255, 0.62); } 82% { color: #ffffff; } 100% { color: #ffffff; } }
+.fd-ship-pkg {
+  position: absolute;
+  top: 0;
+  left: 13%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 2.095em;
+  height: 2.095em;
+  border-radius: 0.571em;
+  background: color-mix(in srgb, var(--accent) 88%, #0a2c32);
+  color: #241a02;
+  box-shadow: 0 0.381em 1.143em -0.286em rgba(0, 0, 0, 0.5);
+}
+.fd-ship-pkg svg { width: 1.238em; height: 1.238em; }
+.fd-ship-pkg { animation: fd-ship-pkg 3.6s ease-in-out infinite; }
+@keyframes fd-ship-pkg { 0%, 14% { left: 13%; } 50% { left: 50%; } 82%, 100% { left: 87%; } }
+
+
+/* ══ Notificaciones — the bell rings; proactive alerts stream in (no wires — the alerts speak for themselves) ══ */
+/* La campana estaba en el 6% con 13% de ancho y los avisos arrancaban recién en
+   el 39%: quedaba un quinto de la pantalla vacío en el medio y la campana,
+   chiquita, colgada del margen. Se la corre hacia adentro y se la agranda. */
+.fd-notif-bell {
+  position: absolute;
+  left: 12%;
+  top: 38%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 17%;
+  aspect-ratio: 1;
+  border-radius: 26%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.095em solid rgba(255, 255, 255, 0.12);
+  color: color-mix(in srgb, var(--accent) 82%, #ffffff);
+}
+.fd-notif-bell svg { width: 3.2em; height: 3.2em; transform-origin: top center; }
+.fd-notif-bell svg { animation: fd-notif-ring 3.6s ease-in-out infinite; }
+@keyframes fd-notif-ring {
+  0%, 5% { transform: rotate(0); }
+  8% { transform: rotate(15deg); }
+  12% { transform: rotate(-12deg); }
+  16% { transform: rotate(8deg); }
+  20% { transform: rotate(-5deg); }
+  24%, 100% { transform: rotate(0); }
+}
+.fd-notif-badge { position: absolute; top: 0.857em; right: 0.857em; width: 0.857em; height: 0.857em; border-radius: 999px; background: var(--accent); border: 0.19em solid #0f4a52; }
+.fd-notif-badge { animation: fd-notif-badge 3.6s ease-in-out infinite; }
+@keyframes fd-notif-badge { 0%, 5% { box-shadow: none; } 12% { box-shadow: 0 0 1.048em 0 var(--accent); } 32%, 100% { box-shadow: none; } }
+.fd-notif-toast {
+  position: absolute;
+  right: 8%;
+  width: 55%;
+  display: flex;
+  align-items: center;
+  gap: 0.857em;
+  padding: 0.762em 0.952em;
+  border-radius: 0.952em;
+  background: rgba(255, 255, 255, 0.07);
+  border: 0.095em solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 1.143em 2.667em -1.333em rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateX(2.667em);
+}
+.fd-notif-ic { display: grid; place-items: center; width: 2.476em; height: 2.476em; border-radius: 0.762em; flex: none; background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9); }
+.fd-notif-ic svg { width: 1.429em; height: 1.429em; }
+.fd-notif-body { display: flex; flex-direction: column; gap: 0.19em; min-width: 0; }
+.fd-notif-body b { font-family: var(--font-inter); font-size: 1.048em; font-weight: 600; color: #ffffff; }
+.fd-notif-body i { font-family: var(--font-inter); font-size: 0.905em; font-style: normal; color: rgba(255, 255, 255, 0.56); }
+.fd-notif-toast[data-t="0"] { animation: fd-notif-toast 3.6s ease-out infinite; }
+.fd-notif-toast[data-t="1"] { animation: fd-notif-toast 3.6s ease-out 0.5s infinite; }
+.fd-notif-toast[data-t="2"] { animation: fd-notif-toast 3.6s ease-out 1s infinite; }
+@keyframes fd-notif-toast {
+  0% { opacity: 0; transform: translateX(2.667em); }
+  9% { opacity: 1; transform: translateX(0); }
+  74% { opacity: 1; transform: translateX(0); }
+  82%, 100% { opacity: 0; transform: translateX(2.667em); }
+}
+

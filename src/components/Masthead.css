@@ -1,0 +1,105 @@
+/*
+ * La franja de arriba, en dos columnas: el logo a la izquierda, el cartel a la
+ * derecha, y todo el aire que sobra en el medio. Apilados y centrados quedaban
+ * apretados y compitiendo por el mismo eje.
+ */
+.masthead {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* El logotipo va en blanco pleno; la tesela conserva sus tres teales (ver
+   TesellyLogo.tsx). El alto se fija y el ancho lo resuelve el viewBox. */
+.masthead__logo {
+  display: block;
+  height: 6.4rem;
+  width: auto;
+  color: var(--white);
+  grid-column: 1;
+}
+
+/* ---- el cartel de feria -------------------------------------------------- */
+
+.sign {
+  position: relative;
+  grid-column: 3;
+  padding: 1.1rem 2.6rem;
+  border-radius: 999px;
+  border: 2px solid rgb(255 174 64 / 0.55);
+  background: rgb(12 50 56 / 0.55);
+  /* El halo cálido de un cartel encendido. Es la única luz de este color en toda
+     la pieza: la rueda usa los mismos ámbares, y las dos cosas se leen juntas. */
+  box-shadow:
+    0 0 2.5rem -0.5rem rgb(255 174 64 / 0.5),
+    inset 0 0 2rem -1rem rgb(255 210 122 / 0.6);
+  animation: sign-flicker 6s steps(1, end) infinite;
+}
+
+.sign__text {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--white);
+  white-space: nowrap;
+}
+
+/* "ganá" en ámbar: la palabra que importa, en el color del cartel. */
+.sign__win {
+  font-style: normal;
+  color: #ffd27a;
+}
+
+/*
+ * Las bombitas. La POSICION la calcula el componente sobre el perimetro real de
+ * la pastilla (ver `pillPoints`), y el patron de encendido lo maneja un reloj
+ * que va rotando entre varios -- ronda, alterna, latido, apertura, chispa -- asi
+ * que aca no hay `@keyframes`: solo el aspecto de apagada y de encendida.
+ */
+.sign__bulbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sign__bulb {
+  position: absolute;
+  width: 0.52rem;
+  height: 0.52rem;
+  margin: -0.26rem 0 0 -0.26rem;
+  border-radius: 50%;
+  background: rgb(255 210 122 / 0.22);
+  /* Corta y no instantanea: el apagado se nota mas que el encendido, y sin un
+     resto de brillo la ronda parpadea en vez de correr. */
+  transition: background 120ms linear, box-shadow 120ms linear;
+}
+
+.sign__bulb.is-on {
+  background: #ffd27a;
+  box-shadow: 0 0 0.55rem rgb(255 210 122 / 0.95);
+}
+
+/* El letrero entero titila cada tanto, como un tubo que arranca. Muy espaciado a
+   propósito: un parpadeo constante cansa y deja de leerse como cartel. */
+@keyframes sign-flicker {
+  0%,
+  86%,
+  89%,
+  92%,
+  100% {
+    border-color: rgb(255 174 64 / 0.55);
+    box-shadow:
+      0 0 2.5rem -0.5rem rgb(255 174 64 / 0.5),
+      inset 0 0 2rem -1rem rgb(255 210 122 / 0.6);
+  }
+  87%,
+  90% {
+    border-color: rgb(255 174 64 / 0.18);
+    box-shadow: none;
+  }
+}

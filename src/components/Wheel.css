@@ -1,8 +1,21 @@
+/*
+ * La rueda con la piel de Teselly. La MECÁNICA no se tocó —el paso a paso del
+ * giro, la deflexión del puntero contra cada clavija, la persecución de las
+ * luces— porque eso es lo que la hace sentir una rueda de verdad.
+ *
+ * Lo que se fue es el VOLUMEN. La versión anterior traía de la ruleta de feria
+ * un cubo y un puntero con degradé radial, sombras proyectadas y un barniz
+ * encima de cada gajo: tres trucos de relieve pegados sobre una cara que es
+ * plana y una marca que es plana. Ese choque es lo que se leía como falso. Ahora
+ * es todo color liso y filos de un pixel — el mismo lenguaje que las tarjetas de
+ * la landing.
+ */
+
 .wheel {
   position: relative;
+  /* Cuadrada. El ANCHO se lo pone quien la contiene (ver `.stage .wheel` en
+     App.css), porque es la franja la que sabe cuánto alto sobra. */
   width: 100%;
-  /* Fit the stage without pushing the page into a scroll. */
-  max-width: min(100%, 640px, calc(100dvh - 13rem));
   aspect-ratio: 1;
   margin-inline: auto;
   isolation: isolate;
@@ -15,7 +28,7 @@
   overflow: visible;
 }
 
-/* ---- face ---------------------------------------------------------------- */
+/* ---- cara ---------------------------------------------------------------- */
 
 .wheel__face {
   transform-box: fill-box;
@@ -23,65 +36,74 @@
 }
 
 .seg__label {
-  font-family: var(--font-ui);
-  font-weight: 600;
-  font-stretch: 74%;
-  letter-spacing: 0.015em;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: -0.01em;
   paint-order: stroke;
 }
 
+/* Hilo de separación en menta y no en negro: sobre los gajos oscuros de la
+   rampa un filo negro simplemente desaparece y dos gajos oscuros contiguos se
+   funden en una mancha. */
 .seg__rule {
-  stroke: rgb(14 10 6 / 0.32);
-  stroke-width: 0.7;
+  stroke: rgb(159 232 216 / 0.28);
+  stroke-width: 0.6;
 }
 
 .seg--won path:first-child {
-  filter: brightness(1.22) saturate(1.1);
+  filter: brightness(1.18) saturate(1.15);
 }
 
 .peg {
-  fill: #e8ca86;
-  stroke: rgb(60 40 8 / 0.55);
-  stroke-width: 0.5;
+  fill: var(--mint);
 }
 
+/* Aro exterior: teal profundo, liso. */
 .wheel__rim {
   fill: none;
-  stroke: var(--brass);
-  filter: drop-shadow(0 2px 6px rgb(0 0 0 / 0.55));
+  stroke: var(--primary-dark);
 }
 
+/* El filo de menta entre el aro y la cara — el mismo borde de un pixel que
+   llevan las fichas de la landing, y lo único que separa una de otra. */
 .wheel__shadow {
   fill: none;
-  stroke: rgb(0 0 0 / 0.4);
-  stroke-width: 2.5;
+  stroke: rgb(159 232 216 / 0.5);
+  stroke-width: 1.2;
 }
 
 .wheel__blank {
-  fill: var(--velvet);
-  stroke: rgb(255 255 255 / 0.08);
+  fill: var(--ink-raised);
+  stroke: rgb(159 232 216 / 0.2);
   stroke-width: 1;
   stroke-dasharray: 5 7;
 }
 
+/* Cubo blanco con la tesela en el teal oscuro de la marca. Es el punto más claro
+   de toda la pieza, y está justo en el centro de la rueda: el ojo va ahí y lo que
+   encuentra es el logo. */
 .wheel__hubplate {
-  stroke: rgb(60 40 8 / 0.6);
-  stroke-width: 1.2;
-  filter: drop-shadow(0 3px 7px rgb(0 0 0 / 0.6));
+  fill: var(--white);
 }
 
-/* ---- marquee ring -------------------------------------------------------- */
+/* La tesela del logo vive en el cubo — es el centro de la rueda Y el centro de
+   la marca. No rota con la cara: se queda quieta mientras todo gira. Sobre el
+   cubo oscuro va con sus tres teales, como en el logotipo. */
+.wheel__mark {
+  pointer-events: none;
+}
+
+/* ---- aro de luces -------------------------------------------------------- */
 
 .bulb {
-  fill: #39405a;
-  stroke: rgb(255 255 255 / 0.09);
+  fill: #17444b;
+  stroke: rgb(159 232 216 / 0.12);
   stroke-width: 0.6;
   transition: fill 90ms linear;
 }
 
 .bulb--lit {
-  fill: var(--bulb);
-  filter: drop-shadow(0 0 4px rgb(255 214 130 / 0.85));
+  fill: var(--mint-bright);
 }
 
 .bulbs--idle .bulb {
@@ -92,10 +114,10 @@
   0%,
   70%,
   100% {
-    fill: #39405a;
+    fill: #17444b;
   }
   35% {
-    fill: #8d7a4a;
+    fill: #3f7f83;
   }
 }
 
@@ -105,74 +127,57 @@
 
 @keyframes bulb-flash {
   0% {
-    fill: var(--bulb);
-    filter: drop-shadow(0 0 6px rgb(255 214 130 / 0.95));
+    fill: var(--mint-bright);
   }
   50% {
-    fill: #39405a;
-    filter: none;
+    fill: #17444b;
   }
 }
 
-/* ---- pointer ------------------------------------------------------------- */
+/* ---- puntero ------------------------------------------------------------- */
 
+/* Puntero liso, en menta: es el único elemento de la rueda que tiene que
+   destacarse solo, y lo hace por color y no por sombra. */
 .pointer__blade,
 .pointer__pin {
-  stroke: rgb(58 38 6 / 0.7);
-  stroke-width: 1;
+  fill: var(--mint);
   stroke-linejoin: round;
-  filter: drop-shadow(0 3px 5px rgb(0 0 0 / 0.6));
 }
 
-/* ---- spin control -------------------------------------------------------- */
+/* ---- control accesible --------------------------------------------------- */
 
+/*
+ * En el televisor nadie hace click: se gira con la barra espaciadora. El botón
+ * queda invisible sobre el cubo pero sigue existiendo — es el control real de la
+ * rueda para teclado y lector de pantalla, aunque en la pieza terminada no lo
+ * apriete nadie.
+ */
 .spin {
   position: absolute;
   inset: 50% auto auto 50%;
   translate: -50% -50%;
   width: 15.7%;
   aspect-ratio: 1;
+  padding: 0;
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #3d2807;
-  font-family: var(--font-display);
-  font-size: clamp(0.7rem, 2.1vw, 1.05rem);
-  letter-spacing: 0.02em;
+  color: transparent;
   cursor: pointer;
-  transition: scale 140ms ease, color 140ms ease;
-}
-
-.spin:hover:not(:disabled) {
-  scale: 1.07;
-  color: #24170a;
-}
-
-.spin:active:not(:disabled) {
-  scale: 0.96;
-}
-
-.spin:disabled {
-  cursor: default;
-  color: rgb(61 40 7 / 0.55);
 }
 
 .spin:focus-visible {
-  outline: 3px solid var(--bulb);
-  outline-offset: 6px;
+  outline: 0.2rem solid var(--mint);
+  outline-offset: 0.4rem;
 }
 
-.spin__word {
-  display: block;
-  translate: 0 -0.04em;
-}
-
+/* Lo único de la pieza que la preferencia de movimiento reducido apaga de
+   verdad: el destello de la celebración parpadea a ~4 Hz, que es territorio
+   fotosensible. El resto —el respiro de las luces en reposo, el latido del
+   cartel— son ciclos de segundos y se quedan. */
 @media (prefers-reduced-motion: reduce) {
-  .bulbs--idle .bulb,
   .wheel--celebrating .bulb {
     animation: none;
-  }
-  .spin {
-    transition: none;
+    fill: var(--mint-bright);
   }
 }

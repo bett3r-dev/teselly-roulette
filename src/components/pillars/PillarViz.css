@@ -1,0 +1,720 @@
+/*
+ * LAS MAQUETAS DE LOS PILARES — copiadas TAL CUAL de la landing.
+ *
+ * Esto es un extracto literal de `landing/src/styles/global.css` (las familias
+ * `.pilar3-*`, `.pilar2-grid` / `.p2-*` y `.p1-*`). No se reescribió nada: los
+ * pilares de la landing son estas tres maquetas, y cualquier "versión parecida"
+ * dibujada a mano se nota al lado de la original. Si allá cambia una, se vuelve
+ * a copiar el bloque de acá.
+ *
+ * Lo único que se agrega es el contenedor `.pviz`, porque allá el tamaño se lo
+ * daban clases de Tailwind en el `.astro` y este repo no tiene Tailwind.
+ */
+
+/* El marco que en la landing daban las utilidades
+   `relative aspect-[505/351] w-full overflow-hidden rounded-2xl bg-[#0f4a52] ring-1 ring-white/10`. */
+/* `font-size` es la ESCALA de la maqueta: todo lo de adentro esta en `em`
+   contra este valor. En la landing el titulo de nodo mide 12px sobre una
+   tarjeta de 505px; quien use `.pviz` mas grande sube este numero en la misma
+   proporcion y la maqueta entera acompaña. Antes estaba todo en px absolutos
+   y en el panel 4K, donde el resto escala por `rem`, salia a media medida. */
+.pviz {
+  font-size: 12px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: #0f4a52;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.pviz-abs {
+  position: absolute;
+  inset: 0;
+}
+
+.pviz-none {
+  pointer-events: none;
+}
+
+/* ── Pilar 3 (AI-first) visualization ─────────────────────────────────────────────────── */
+/* Products become "processed" as they cross the MIDDLE of the card (~50%, the line that halves the
+   AI card): full below, dim above, with a very small ramp (48→52%) rather than a hard step. */
+.pilar3-mask {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0.25) 48%,
+    #000 52%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0.25) 48%,
+    #000 52%,
+    #000 100%
+  );
+}
+/* …and they soften: a backdrop blur over the top half, fading out over the same small band so the
+   blur ends on the same line. */
+.pilar3-blur-top {
+  -webkit-backdrop-filter: blur(2.5px);
+  backdrop-filter: blur(2.5px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%);
+}
+.pilar3-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5px;
+  padding: 5px;
+  border-radius: 6.5px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pilar3-thumb {
+  height: 26px;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.16), transparent 60%),
+    linear-gradient(135deg, rgba(153, 195, 200, 0.24), rgba(76, 150, 158, 0.12));
+}
+.pilar3-thumb--1 {
+  background:
+    radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.16), transparent 60%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(76, 150, 158, 0.16));
+}
+.pilar3-thumb--2 {
+  background:
+    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.14), transparent 60%),
+    linear-gradient(160deg, rgba(153, 195, 200, 0.2), rgba(255, 255, 255, 0.06));
+}
+.pilar3-thumb--3 {
+  background:
+    radial-gradient(circle at 60% 40%, rgba(255, 255, 255, 0.18), transparent 55%),
+    linear-gradient(120deg, rgba(76, 150, 158, 0.22), rgba(153, 195, 200, 0.1));
+}
+.pilar3-line {
+  height: 3px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.22);
+}
+.pilar3-line--dim {
+  background-color: rgba(255, 255, 255, 0.11);
+}
+.pilar3-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pilar3-ic {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  color: rgba(255, 255, 255, 0.6);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pilar3-pill {
+  display: block;
+  height: 5.5px;
+  width: 46%;
+  border-radius: 999px;
+  background-color: rgba(153, 195, 200, 0.32);
+}
+.pilar3-bar {
+  height: 4px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.pilar3-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background-color: rgba(153, 195, 200, 0.6);
+}
+.pilar3-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 18px;
+}
+.pilar3-bars span {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background-color: rgba(153, 195, 200, 0.42);
+}
+.pilar3-scan {
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(153, 195, 200, 0.55), transparent);
+  box-shadow: 0 0 14px 1px rgba(153, 195, 200, 0.3);
+  opacity: 0.7;
+}
+/* Base stream loop is pure CSS (browser computes the % → no JS measurement/timing to break). Four
+   identical stacked copies make translateY(-25%) a seamless wrap. JS only tweaks playbackRate. */
+@keyframes pilar3-stream-scroll {
+  to {
+    transform: translateY(-25%);
+  }
+}
+/* El `-3s` es un arranque ADELANTADO: la ficha entra y sale con el carrusel, y
+   empezando el bucle en cero el flujo se ve quieto los primeros segundos. Y va a
+   9 s en vez de 16 porque a esta escala 16 s se leía como una foto.
+
+   Va acá y no en el script a propósito: `gsap.ticker` corre sobre rAF, y si rAF
+   llega estrangulado el fondo queda inmóvil. Así se mueve aunque el script no
+   haya corrido todavía; el script sólo le pone el vaivén de velocidad encima. */
+.pilar3-stream-anim {
+  animation: pilar3-stream-scroll 9s linear -3s infinite;
+}
+.pilar3-caret {
+  animation: caret-blink 1s steps(1) infinite;
+}
+.pilar3-ai-icon {
+  animation: pilar3-pulse 2.6s ease-in-out infinite;
+}
+@keyframes pilar3-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(153, 195, 200, 0);
+  }
+  50% {
+    box-shadow: 0 0 16px 2px rgba(153, 195, 200, 0.35);
+  }
+}
+
+/* ── Pilar 2 (Metrics) "dashboard builder" ────────────────────────────────────────────── */
+.pilar2-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+.p2-widget {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  will-change: transform;
+}
+.p2-widget--center {
+  align-items: center;
+  justify-content: center;
+}
+.p2-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.p2-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background-color: rgba(153, 195, 200, 0.75);
+}
+.p2-hline {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.p2-hline--dim {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.p2-bars {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+.p2-bars span {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(to top, rgba(153, 195, 200, 0.3), rgba(153, 195, 200, 0.72));
+}
+.p2-line {
+  flex: 1;
+  width: 100%;
+  height: auto;
+}
+.p2-line polyline {
+  stroke: rgba(153, 195, 200, 0.9);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.p2-donut {
+  width: 74%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(rgba(153, 195, 200, 0.82) 0 64%, rgba(255, 255, 255, 0.12) 64% 100%);
+  -webkit-mask: radial-gradient(circle, transparent 52%, #000 54%);
+  mask: radial-gradient(circle, transparent 52%, #000 54%);
+}
+.p2-num {
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: clamp(15px, 1.7vw, 24px);
+  line-height: 1;
+  color: #ffffff;
+}
+.p2-handle {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background-color: #ffffff;
+  border: 1.5px solid #0f4a52;
+  opacity: 0;
+  visibility: hidden;
+}
+.p2-cursor {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+}
+.p2-toolbar {
+  position: absolute;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 3px 4px;
+  border-radius: 9px;
+  background-color: rgba(9, 38, 43, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.p2-tool {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.82);
+}
+.p2-tool svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+.p2-tool--active {
+  background-color: rgba(153, 195, 200, 0.3);
+  color: #ffffff;
+}
+.p2-tool-sep {
+  width: 1px;
+  height: 12px;
+  margin: 0 2px;
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Pilar 1 (Reglas y automatización) — event → listen → node-graph execution ─────────── */
+.p1-wires {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+.p1-wire {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.14);
+  stroke-width: 1.5;
+}
+.p1-flow {
+  fill: none;
+  stroke: #9fe8d8;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px rgba(159, 232, 216, 0.85)) drop-shadow(0 0 11px rgba(159, 232, 216, 0.4));
+}
+/* Flowing "current": tiny bright dashes that run along an energised wire (electricity). */
+.p1-current {
+  fill: none;
+  stroke: #d6fff2;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 0.5 7;
+  opacity: 0;
+  filter: drop-shadow(0 0 3px rgba(159, 232, 216, 0.95));
+  animation: p1-current-flow 0.55s linear infinite;
+}
+@keyframes p1-current-flow {
+  to {
+    stroke-dashoffset: -7.5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .p1-current {
+    animation: none;
+  }
+}
+.p1-port {
+  fill: rgba(153, 195, 200, 0.55);
+}
+.p1-node {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.417em;
+  padding: 0.667em 0.75em;
+  border-radius: 0.75em;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.p1-node--chip {
+  justify-content: center;
+  gap: 0.25em;
+}
+.p1-node-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.p1-node-dot {
+  width: 0.5em;
+  height: 0.5em;
+  flex: none;
+  border-radius: 50%;
+  background-color: rgba(153, 195, 200, 0.5);
+}
+.p1-node-title {
+  font-family: var(--font-inter);
+  font-size: 1em;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.86);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.p1-node-sub {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75em;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.42);
+}
+.p1-node-line {
+  height: 0.333em;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.p1-node-line--dim {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.p1-chip-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.667em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.p1-chip-val {
+  position: relative;
+  width: 100%;
+  height: 1.333em;
+}
+.p1-state {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-inter);
+  font-size: 1.083em;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
+}
+.p1-state--b {
+  color: #7fe3c8;
+}
+/* Inventory output — a list of stock locations; one specific row is decremented. */
+.p1-node--inv {
+  gap: 0.333em;
+}
+.p1-inv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  margin-top: 0.083em;
+}
+.p1-inv-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.25em 0.417em;
+  border-radius: 0.417em;
+}
+.p1-inv-ic {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  color: rgba(153, 195, 200, 0.7);
+}
+.p1-inv-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-inter);
+  font-size: 0.917em;
+  color: rgba(255, 255, 255, 0.64);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.p1-inv-val {
+  position: relative;
+  flex: none;
+  width: 4.833em;
+  height: 1.25em;
+}
+.p1-inv-num {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 1em;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+.p1-inv-num--b {
+  color: #7fe3c8;
+}
+.p1-inv-num--warn {
+  color: #e8bd83;
+}
+.p1-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 16px;
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.p1-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(153, 195, 200, 0.7);
+}
+/* Event chips arranged around the Teselly core; dim by default, one lights up per loop. */
+.p1-ev {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--font-inter);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0.55;
+}
+.p1-ev svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: #9fe8d8;
+}
+.p1-status {
+  position: absolute;
+  left: 50%;
+  top: 65%;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(159, 232, 216, 0.85);
+  white-space: nowrap;
+}
+/* Spokes from each event to the core + the travelling signal pulse. */
+.p1-spoke {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.p1-signal-c {
+  fill: #d6fff2;
+  filter: drop-shadow(0 0 6px rgba(159, 232, 216, 0.95));
+  opacity: 0;
+}
+
+
+/* ── Pilar 3: lo que en la landing daban utilidades de Tailwind ─────────────── */
+
+.pilar3-stream {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  will-change: transform;
+}
+
+/*
+ * En la landing son tres columnas (`grid-cols-3`), porque su maqueta es casi
+ * cuadrada. Acá la pantalla es un banner de 2:1 y con tres columnas cada tarjeta
+ * salía apaisada y chata — se leía como tres barras, no como un flujo de cosas.
+ * Con seis, la tarjeta recupera su proporción vertical y además pasan más cosas
+ * por delante de la IA, que es de lo que habla la ficha.
+ */
+/* Ocho columnas y las fichas achicadas a ~0,7×: el flujo es el FONDO de la
+   escena, y con seis columnas competía con la ficha de IA en vez de pasar por
+   detrás. Los px de adentro se bajaron en la misma proporción. */
+.pilar3-set {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.pilar3-scanline {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  z-index: 10;
+  transform: translateY(-50%);
+}
+
+.pilar3-blurband {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 15;
+  height: 52%;
+}
+
+.pilar3-ai {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  /* Más ancha que en la landing: sobre un banner de 2:1 una ficha de 20rem se
+     pierde en el medio del flujo en vez de cortarlo. */
+  width: min(82%, 47rem);
+  padding: 1.6rem 2rem;
+  translate: -50% -50%;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.15);
+  background: rgb(255 255 255 / 0.1);
+  box-shadow: 0 12px 44px -10px rgb(0 0 0 / 0.55);
+  backdrop-filter: blur(12px);
+}
+
+.pilar3-ai-badge {
+  display: grid;
+  place-items: center;
+  width: 3.6rem;
+  height: 2.4rem;
+  flex: none;
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 0.15);
+  color: #ffffff;
+}
+
+.pilar3-ai-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pilar3-ai-kicker {
+  font-family: var(--font-aktiv);
+  font-size: 1rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.45);
+}
+
+.pilar3-ai-line {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pilar3-ai-word {
+  font-family: var(--font-inter);
+  font-size: 1.85rem;
+  line-height: 1.25;
+  font-weight: 500;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pilar3-ai-caret {
+  flex: none;
+  color: rgb(255 255 255 / 0.7);
+}
+
+/* El cursor que parpadea. En la landing es `caret-blink`, declarado en otra
+   parte de global.css; se trae con él. */
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/*
+ * PILAR 2 EN LA PIEZA — sin la tarjeta que lo encapsula.
+ *
+ * En la landing el viz vive sobre `bg-[#0f4a52]` con su grilla de líneas y su
+ * aro. Acá la placa de la franja YA es esa superficie: la tarjeta encima se leía
+ * como un recuadro dentro de otro, y las dos tramas (los puntos de la placa y
+ * las líneas de la maqueta) se peleaban. Mismo criterio que `RulesEngine`.
+ *
+ * Se le da también la PROPORCIÓN del viewBox y un tope de alto: sin eso se
+ * estiraba a los 952 × 5xx de la pantalla —1.7:1 contra el 1.44:1 nativo— y los
+ * widgets salían más anchos de lo que la maqueta supone.
+ */
+.pviz[data-pilar2] {
+  height: 86%;
+  width: auto;
+  aspect-ratio: 505 / 351;
+  margin: auto;
+  inset: 0;
+  position: absolute;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  /* Sin borde no hay nada que justifique el recorte, y las manijas del cursor
+     viven fuera del widget (`right:-4px`). */
+  overflow: visible;
+}

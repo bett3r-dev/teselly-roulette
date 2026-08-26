@@ -1,0 +1,61 @@
+/*
+ * El mosaico se sienta detrás de TODO y no recibe un solo evento. Se sale del
+ * viewport por los cuatro lados para que la deriva de los estratos no pueda
+ * llegar a mostrar un borde de la retícula.
+ */
+.hexfield {
+  position: fixed;
+  inset: -6vh -6vw;
+  z-index: 0;
+  pointer-events: none;
+  /* EL dial de cuánta presencia tiene el fondo (0 = invisible, 1 = pleno).
+     Es el mismo número que `.ab-field { opacity }` en la landing. */
+  opacity: 0.42;
+}
+
+.hexfield svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Deriva ambiental. Larga y chica: tiene que registrarse como "vivo", no como
+   movimiento. Cada estrato lleva su propio signo y duración, así que nunca
+   vuelven a alinearse y el mosaico respira en profundidad. */
+.hexfield__band {
+  animation: hexfield-drift var(--dur) ease-in-out infinite alternate;
+}
+
+@keyframes hexfield-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(var(--drift));
+  }
+}
+
+/* Las piezas entran desde fuera de cuadro y encajan en la retícula, del centro
+   hacia afuera. El `delay` de cada tesela viaja inline desde HexField.tsx.
+   `both` y no `forwards`: hace falta la mitad `backwards` para que una tesela
+   con 0.8s de espera no aparezca ya colocada antes de salir a buscar su
+   posición, y la mitad `forwards` para que al terminar se quede en su opacidad
+   de reposo en vez de volver al `opacity: 0` de la regla. */
+.hexfield__cell {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hexfield-settle 1.35s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+@keyframes hexfield-settle {
+  from {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.45);
+  }
+  to {
+    opacity: var(--o);
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+}
+

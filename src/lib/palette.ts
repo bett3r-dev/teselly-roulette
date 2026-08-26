@@ -1,23 +1,41 @@
 /**
- * Hand-painted enamel colours, the kind a fairground sign painter would keep on
- * the bench. Deliberately not a rainbow — they are chosen to sit next to each
- * other without vibrating.
+ * LA PALETA DE LA RUEDA.
+ *
+ * Ésta es la única parte de la pieza que NO usa la paleta de la aplicación, y es
+ * a propósito. Todo lo demás —el fondo, las maquetas, la tipografía— es el teal
+ * de Teselly, porque todo lo demás es la marca hablando. La rueda no: la rueda
+ * es un juego de feria en un stand, compitiendo por la atención de alguien que
+ * está pasando. Pintada con la rampa de teales de la app quedaba correcta,
+ * sobria y absolutamente invisible a cinco metros: ocho tonos del mismo color
+ * sobre un fondo de ese mismo color se leen como un disco gris.
+ *
+ * Así que acá entran los ACENTOS CÁLIDOS de la landing —los mismos `#ffd27a`,
+ * `#ffae40`, `#ff6a1e` y `#ffa593` que allá marcan estados y avisos— alternados
+ * con los teales claros. Siguen siendo colores de la marca; lo que cambia es la
+ * proporción, que acá está al servicio de que la rueda se vea desde la otra
+ * punta del salón.
+ *
+ * El orden tampoco es un degradé: alterna cálido y frío, y claro y oscuro. Cada
+ * gajo corta contra sus dos vecinos, que es lo que hace que a la distancia se
+ * lea una RUEDA y no una mancha.
  */
 export const ENAMEL = [
-  '#B23A34', // oxblood
-  '#2C7A8C', // teal
-  '#D9A227', // mustard
-  '#3B5A9D', // indigo
-  '#2E6B4F', // forest
-  '#C97B84', // dusty rose
-  '#6C3A66', // plum
-  '#E3D5B4', // cream
+  '#FFAE40', // ámbar
+  '#0E7C8A', // teal profundo
+  '#FFD27A', // dorado
+  '#12464D', // teal oscuro
+  '#FF6A1E', // naranja
+  '#9FE8D8', // menta
+  '#FFA593', // coral
+  '#006974', // brand-deep
+  '#D6FFF2', // menta clara
+  '#1A5D66', // primary
 ] as const
 
-const DARK_INK = '#1A1410'
-const LIGHT_INK = '#F7F1E4'
+const DARK_INK = '#08262b'
+const LIGHT_INK = '#ffffff'
 
-/** Relative luminance, so labels stay readable on every enamel colour. */
+/** Luminancia relativa, para que la etiqueta se lea sobre cualquier gajo. */
 export function inkOn(hex: string): string {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
   const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)
@@ -25,7 +43,7 @@ export function inkOn(hex: string): string {
   return l > 0.38 ? DARK_INK : LIGHT_INK
 }
 
-/** Next colour for a new entry: on-palette, and never the same as its neighbour. */
+/** Próximo color para una entrada nueva: en paleta, y nunca igual a su vecina. */
 export function nextColor(existing: string[]): string {
   const last = existing[existing.length - 1]
   const first = existing[0]
@@ -37,7 +55,7 @@ export function nextColor(existing: string[]): string {
   return [...pool].sort((a, b) => (counts.get(a) ?? 0) - (counts.get(b) ?? 0))[0]
 }
 
-/** Colours for a whole list at once, keeping neighbours (and the wrap) distinct. */
+/** Colores para una lista entera, manteniendo distintos los vecinos (y el cierre). */
 export function autoColors(count: number): string[] {
   const out: string[] = []
   for (let i = 0; i < count; i++) out.push(nextColor(out))

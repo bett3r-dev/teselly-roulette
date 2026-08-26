@@ -1,101 +1,68 @@
+/*
+ * LA PIEZA. Un televisor de 65" puesto en vertical: 2160 × 3840, sin cursor,
+ * sin scroll y sin nadie que la atienda. Todo lo que pasa acá pasa solo, salvo
+ * el giro de la rueda.
+ */
+
 .app {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  /* Vignette + un resplandor teal detrás de la rueda: la luz viene del centro,
+     que es donde está la protagonista. Va sobre el mosaico y debajo del
+     contenido, así que el hexágono se ve teñido, no tapado. */
+  background-image:
+    radial-gradient(60% 32% at 50% 45%, rgb(26 93 102 / 0.55), transparent 70%),
+    radial-gradient(120% 70% at 50% 108%, rgb(0 105 116 / 0.28), transparent 65%);
+}
+
+/*
+ * LAS TRES FRANJAS. Las proporciones son el diseño, no una consecuencia: la
+ * rueda se queda con más de la mitad del alto porque es la protagonista, la
+ * marca ocupa lo mínimo para identificar la pantalla, y abajo queda una franja
+ * lo bastante alta como para que el reflector tenga aire.
+ *
+ * `1fr` en el medio y no un porcentaje: si el panel no es 9:16 exacto, lo que
+ * cede es la rueda (que es cuadrada y se adapta) y no el texto de arriba y
+ * abajo, que a menos altura se volvería ilegible.
+ */
+.app__bands {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-rows: auto 1fr;
-  min-height: 100%;
-  padding: clamp(0.9rem, 2.2vw, 1.6rem);
-  gap: clamp(0.9rem, 2vw, 1.5rem);
+  grid-template-rows: 9% minmax(0, 1fr) 43%;
+  /* `minmax(0, 1fr)` y no la columna implícita: las cintas de la franja 3 son
+     pistas `width: max-content` de varios miles de píxeles, y una columna
+     `auto` toma esa medida como su mínimo y estira las TRES franjas hasta el
+     ancho de la cinta. Con `minmax(0, …)` la columna vale exactamente lo que
+     mide la pantalla y la cinta desborda hacia adentro de su `overflow`,
+     que es lo que se quería. */
+  grid-template-columns: minmax(0, 1fr);
+  height: 100%;
+  padding: 2.6rem 4rem 2.2rem;
+  /* El hueco entre la rueda y la franja de abajo es el más grande de la pieza a
+     propósito: son las DOS cosas que se miran, y sin una separación clara la
+     pantalla de abajo se lee como si colgara de la rueda en vez de como un
+     bloque aparte. El de arriba queda a la mitad — la marca y la rueda sí van
+     juntas. */
+  row-gap: 2rem;
 }
 
-/* ---- masthead ------------------------------------------------------------ */
-
-.masthead {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.9rem;
-  border-bottom: 1px solid var(--edge);
-}
-
-.masthead__eyebrow {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  color: var(--brass);
-}
-
-.masthead__title {
-  margin: 0.15rem 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2.6vw, 1.6rem);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  color: var(--chalk);
-}
-
-/* ---- stage --------------------------------------------------------------- */
+/* ---- franja 2: la rueda -------------------------------------------------- */
 
 .stage {
+  margin-bottom: 2.6rem;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 21rem;
-  align-items: center;
-  gap: clamp(1rem, 3vw, 2.5rem);
+  place-items: center;
   min-height: 0;
+  /* Contenedor de consulta para que la rueda pueda medirse contra la franja y
+     no contra el viewport: es la franja la que le pone el techo. */
+  container-type: size;
 }
 
-.stage__wheel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(0.9rem, 2.4vw, 1.6rem);
-  justify-self: center;
-  width: 100%;
-}
-
-.stage__meta {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--chalk-dim);
-  text-align: center;
-}
-
-.stage__meta .dot {
-  color: var(--brass);
-  padding-inline: 0.15em;
-}
-
-.stage > .editor {
-  max-height: min(78vh, 42rem);
-  align-self: center;
-}
-
-/* ---- narrow ------------------------------------------------------------- */
-
-@media (max-width: 900px) {
-  .stage {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
-    gap: 1.5rem;
-  }
-
-  .stage > .editor {
-    max-height: none;
-  }
-
-  .stage__wheel .wheel {
-    max-width: min(80vw, 26rem);
-  }
-}
-
-@media (max-width: 900px) and (orientation: landscape) {
-  .stage__wheel .wheel {
-    max-width: min(62vh, 22rem);
-  }
+/* La rueda es cuadrada, así que el lado lo manda la dimensión que menos sobra.
+   Ya no se descuenta nada del alto: el cartel de la barra espaciadora que
+   colgaba del borde inferior se fue. */
+.stage .wheel {
+  width: min(100cqw, 100cqh);
 }

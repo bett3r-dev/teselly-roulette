@@ -1,0 +1,307 @@
+/*
+ * La maqueta `omni` del mazo de la landing, copiada.
+ *
+ * Los VALORES son los de `FeaturesDeck.astro`, sólo pasados de px a `em`: allá
+ * la carta mide 400 px de ancho con texto de 10,5 px, y acá la ficha mide unos
+ * 687 px de lienzo. `font-size` en `.omni` es la escala de todo lo de adentro —
+ * se mueve ese número y la maqueta acompaña. Lo que vive dentro del SVG (el
+ * grosor del cable, el radio del nodo) escala solo con el viewBox.
+ *
+ * Regla de conversión: em = px_de_la_landing / 10.5
+ */
+
+.omni {
+  /* La escala. NO se saca del viewBox de 400: en la landing la carta se dibuja a
+     `clamp(336px, 44vw, 589px)` y los tipos quedan clavados en px, así que a
+     tamaño de escritorio la proporción real es 589/10,5. Nuestra ficha mide 687,
+     de donde 10,5 × 687/589 ≈ 12,25; le doy un pelín más para el televisor.
+
+     Con la cuenta ingenua (687/400 → 1em = 18px) los chips se desbordaban: el
+     rótulo «cuenta 1» se salía 35 px por la derecha del chip. */
+  font-size: 0.8125rem;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  height: 78%;
+  width: auto;
+  /* La caja VISIBLE está recortada. La maqueta se dibuja sobre un 4:3 y su
+     contenido va de 13,7% a 62,4% del alto: en el mazo el tercio de abajo lo
+     ocupa el epígrafe (título + párrafo sobre un degradado), que acá no va —
+     el título ya está arriba de la franja y las bajadas se sacaron de la pieza.
+     Sin él quedaba 13,7% de aire arriba contra 37,6% abajo.
+     Recortando a 228 de las 300 unidades del viewBox el aire queda parejo, y
+     nada se deforma: lo de adentro conserva su 4:3 y sobra por abajo. */
+  aspect-ratio: 400 / 228;
+}
+
+/* ---- la pantalla ---------------------------------------------------------- */
+
+/* El acento de la carta `omni` en el mazo. */
+.omni .fd-screen {
+  --accent: #6bb6c0;
+  position: relative;
+  height: 100%;
+  /* Sin fondo: la placa de la franja ya es la superficie. Iban DOS encimados —el
+     degradado teal de la pantalla y la grilla de líneas de `.fd-grid`— y se leía
+     como una tarjeta dentro de otra. */
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.omni .fd-viz {
+  position: absolute;
+  inset: 0 0 auto;
+  height: calc(100% * 300 / 228);
+  pointer-events: none;
+}
+
+/* ---- los cables ----------------------------------------------------------- */
+
+.fd-omni-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fd-omni-wire {
+  stroke: rgb(255 255 255 / 0.16);
+  stroke-width: 1.4;
+}
+
+.fd-omni-merge {
+  fill: color-mix(in srgb, var(--accent) 60%, #ffffff);
+  opacity: 0.5;
+}
+
+.fd-omni-flow {
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 10 130;
+  stroke-dashoffset: 10;
+  opacity: 0;
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+
+/* Los tres desfasajes son PERMANENTES, no un escalonado dentro de un ciclo mayor:
+   cada cometa tiene su propio bucle de 2,7 s y el `animation-delay` sólo corre la
+   primera vez, que es justo lo que se busca acá. */
+.fd-omni-flow[data-f='0'] {
+  animation: fd-omni-flow 2.7s linear infinite;
+}
+.fd-omni-flow[data-f='1'] {
+  animation: fd-omni-flow 2.7s linear 0.9s infinite;
+}
+.fd-omni-flow[data-f='2'] {
+  animation: fd-omni-flow 2.7s linear 1.8s infinite;
+}
+
+/* Una pasada limpia: el cometa entra en el origen, recorre y sale pasado el
+   destino. Con guion 10 y hueco 130 (> pathLength) nunca hay dos en el cable, así
+   que no se ve el salto de vuelta. */
+@keyframes fd-omni-flow {
+  0% {
+    stroke-dashoffset: 10;
+    opacity: 0;
+  }
+  5% {
+    stroke-dashoffset: -1;
+    opacity: 1;
+  }
+  40% {
+    stroke-dashoffset: -95;
+    opacity: 1;
+  }
+  47%,
+  100% {
+    stroke-dashoffset: -100;
+    opacity: 0;
+  }
+}
+
+/* ---- las cuentas conectadas ----------------------------------------------- */
+
+.fd-omni-chip {
+  position: absolute;
+  /* El CENTRO clavado en su `top` — así el cable le llega exacto. */
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.762em;
+  width: 32%;
+  padding: 0.571em 0.857em;
+  border-radius: 0.952em;
+  background: rgb(255 255 255 / 0.05);
+  border: 0.095em solid rgb(255 255 255 / 0.12);
+  color: color-mix(in srgb, var(--accent) 82%, #ffffff);
+}
+
+.fd-omni-logo {
+  width: 2.095em;
+  height: 2.095em;
+  border-radius: 0.571em;
+  object-fit: cover;
+  flex: none;
+  box-shadow: 0 0.095em 0.381em rgb(0 0 0 / 0.35);
+}
+
+.fd-omni-chip-txt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+  gap: 0.095em;
+}
+
+.fd-omni-chip-txt b {
+  display: flex;
+  align-items: baseline;
+  gap: 0.381em;
+  font-family: var(--font-inter);
+  font-size: 1em;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.fd-omni-chip-txt b em {
+  font-style: normal;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.714em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--accent) 60%, #ffffff);
+}
+
+.fd-omni-chip-txt i {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.762em;
+  font-style: normal;
+  letter-spacing: 0.01em;
+  color: rgb(255 255 255 / 0.56);
+  white-space: nowrap;
+}
+
+.fd-omni-chip[data-c='0'] {
+  animation: fd-omni-chip 2.7s ease-in-out infinite;
+}
+.fd-omni-chip[data-c='1'] {
+  animation: fd-omni-chip 2.7s ease-in-out 0.9s infinite;
+}
+.fd-omni-chip[data-c='2'] {
+  animation: fd-omni-chip 2.7s ease-in-out 1.8s infinite;
+}
+
+@keyframes fd-omni-chip {
+  0%,
+  100% {
+    border-color: rgb(255 255 255 / 0.12);
+    box-shadow: none;
+  }
+  5% {
+    border-color: color-mix(in srgb, var(--accent) 72%, transparent);
+    box-shadow: 0 0 1.429em -0.19em color-mix(in srgb, var(--accent) 62%, transparent);
+  }
+  24% {
+    border-color: rgb(255 255 255 / 0.12);
+    box-shadow: none;
+  }
+}
+
+/* ---- el panel unificado --------------------------------------------------- */
+
+.fd-omni-panel {
+  position: absolute;
+  left: 46%;
+  top: 38%;
+  /* Centro clavado en 38% → los tres cables entran por su borde izquierdo. */
+  transform: translateY(-50%);
+  width: 48%;
+  padding: 0.857em 0.952em;
+  border-radius: 1.143em;
+  background: rgb(255 255 255 / 0.06);
+  border: 0.095em solid rgb(255 255 255 / 0.14);
+  box-shadow: 0 1.333em 3.238em -1.714em rgb(0 0 0 / 0.5);
+}
+
+.fd-omni-head {
+  display: flex;
+  align-items: center;
+  gap: 0.667em;
+  padding-bottom: 0.667em;
+  margin-bottom: 0.571em;
+  border-bottom: 0.095em solid rgb(255 255 255 / 0.1);
+}
+
+.fd-omni-mark {
+  width: 0.762em;
+  height: 0.762em;
+  border-radius: 0.286em;
+  background: var(--accent);
+  box-shadow: 0 0 0.762em -0.095em var(--accent);
+  flex: none;
+}
+
+.fd-omni-htxt {
+  font-family: var(--font-inter);
+  font-size: 1em;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.9);
+}
+
+.fd-omni-row {
+  display: flex;
+  align-items: center;
+  gap: 0.762em;
+  padding: 0.476em 0.571em;
+  margin: 0 -0.571em;
+  border-radius: 0.667em;
+}
+
+.fd-omni-dot {
+  width: 0.667em;
+  height: 0.667em;
+  border-radius: 999px;
+  border: 0.143em solid rgb(255 255 255 / 0.42);
+  flex: none;
+}
+
+.fd-omni-ln {
+  height: 0.476em;
+  border-radius: 0.286em;
+  background: rgb(255 255 255 / 0.24);
+}
+
+.fd-omni-v {
+  margin-left: auto;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.952em;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--accent) 52%, #ffffff);
+}
+
+.fd-omni-row[data-r='0'] {
+  animation: fd-omni-row 2.7s ease-in-out infinite;
+}
+.fd-omni-row[data-r='1'] {
+  animation: fd-omni-row 2.7s ease-in-out 0.9s infinite;
+}
+.fd-omni-row[data-r='2'] {
+  animation: fd-omni-row 2.7s ease-in-out 1.8s infinite;
+}
+
+@keyframes fd-omni-row {
+  0%,
+  30% {
+    background: transparent;
+  }
+  40% {
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  64%,
+  100% {
+    background: transparent;
+  }
+}

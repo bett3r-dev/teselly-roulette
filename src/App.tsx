@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import './App.css'
 import { EntryEditor } from './components/EntryEditor'
+import { HexField } from './components/HexField'
+import { Masthead } from './components/Masthead'
 import { Wheel } from './components/Wheel'
+import { Showreel } from './components/Showreel'
 import { WinnerReveal } from './components/WinnerReveal'
 import { useEntries } from './hooks/useEntries'
 import { usePersisted } from './hooks/usePersisted'
@@ -15,10 +18,14 @@ export default function App() {
   const [removeWinner, setRemoveWinner] = usePersisted('teselly-wheel.remove-winner', false)
   const [winner, setWinner] = useState<Entry | null>(null)
   const [queuedSpin, setQueuedSpin] = useState(false)
+  /** El panel de carga NO es parte de la pieza: la pantalla del televisor son
+   *  tres franjas y nada más. Se abre con la tecla E para cargar los premios
+   *  antes del evento y se cierra con Escape. */
+  const [editing, setEditing] = useState(false)
 
   const { peg, fanfare } = useSound(sound)
 
-  // Read at settle time, so a spin always resolves against the list it started with.
+  // Se lee al frenar, así un giro siempre resuelve contra la lista con la que arrancó.
   const latest = useRef({ entries: store.entries, removeWinner })
   latest.current = { entries: store.entries, removeWinner }
 
@@ -39,8 +46,8 @@ export default function App() {
     spin(latest.current.entries.length)
   }, [spin])
 
-  /** The winner only leaves the wheel once the reveal is dismissed, so the
-   *  result stays on screen while everyone is still looking at it. */
+  /** El ganador sale de la rueda recién cuando se cierra el anuncio, así el
+   *  resultado sigue en pantalla mientras todos lo están mirando. */
   const dismiss = useCallback(
     (thenSpin: boolean) => {
       if (winner && latest.current.removeWinner) store.remove(winner.id)
@@ -56,49 +63,67 @@ export default function App() {
     startSpin()
   }, [queuedSpin, startSpin])
 
-  // Space spins from anywhere, for when the wheel is up on a projector.
+  /**
+   * El único gesto humano de toda la pieza. Espacio gira desde donde sea —el
+   * televisor está a varios metros y nadie va a acertarle a un botón— y E abre
+   * el panel de carga, que es lo de antes del evento.
+   */
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.code !== 'Space' || event.repeat) return
-      const target = event.target as HTMLElement | null
-      if (target?.closest('input, textarea, button, [contenteditable]')) return
-      event.preventDefault()
-      if (winner) dismiss(true)
-      else startSpin()
+      if (event.repeat) return
+      // Escribiendo en el panel, las teclas son texto y no atajos.
+      // El `instanceof` no es de más: el listener está en `window`, y el target
+      // de un keydown no tiene por qué ser un elemento — sin la guarda, un
+      // evento disparado sobre el propio `window` revienta acá y se lleva
+      // puesto el único control de toda la pieza.
+      const target = event.target
+      if (
+        target instanceof HTMLElement &&
+        target.closest('input, textarea, button, [contenteditable]')
+      ) {
+        return
+      }
+
+      if (event.code === 'Space') {
+        event.preventDefault()
+        // Con el panel abierto la barra no gira: se está cargando la lista.
+        if (editing) return
+        // Una barra, una cosa. Con el anuncio en pantalla lo único que hace es
+        // cerrarlo; para volver a girar hay que apretarla otra vez. Antes cerraba
+        // Y relanzaba en el mismo gesto, y eso le sacaba el control a quien está
+        // entregando el premio: la rueda ya estaba girando de nuevo antes de que
+        // el ganador terminara de acercarse.
+        if (winner) dismiss(false)
+        else startSpin()
+        return
+      }
+      if (event.key === 'e' || event.key === 'E') {
+        event.preventDefault()
+        setEditing((open) => !open)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [dismiss, startSpin, winner])
+  }, [dismiss, editing, startSpin, winner])
 
-  const count = store.entries.length
+  useEffect(() => {
+    if (!editing) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setEditing(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [editing])
 
   return (
     <div className="app">
-      <header className="masthead">
-        <div className="masthead__mark">
-          <span className="masthead__eyebrow">Teselly</span>
-          <h1 className="masthead__title">Prize Wheel</h1>
-        </div>
-        <button
-          className="btn btn--ghost"
-          type="button"
-          onClick={() => setSound((s) => !s)}
-          aria-pressed={sound}
-        >
-          <svg className="icon" viewBox="0 0 20 20" aria-hidden="true">
-            <path d="M4 7.5h3l4-3v11l-4-3H4z" />
-            {sound ? (
-              <path d="M14 7c1.3 1.6 1.3 5.4 0 7M16.6 5c2.2 2.6 2.2 7.4 0 10" />
-            ) : (
-              <path d="M14.5 7.5l4 5M18.5 7.5l-4 5" />
-            )}
-          </svg>
-          {sound ? 'Sound on' : 'Sound off'}
-        </button>
-      </header>
+      <HexField />
 
-      <main className="stage">
-        <div className="stage__wheel">
+      {/* Tres franjas, en este orden y sin scroll: marca, rueda, qué hacemos. */}
+      <div className="app__bands">
+        <Masthead />
+
+        <main className="stage">
           <Wheel
             entries={store.entries}
             rotation={rotation}
@@ -108,34 +133,25 @@ export default function App() {
             celebrating={winner !== null}
             onSpin={startSpin}
           />
-          <p className="stage__meta">
-            {count === 0 ? (
-              'Add entries to fill the wheel'
-            ) : (
-              <>
-                {count} {count === 1 ? 'entry' : 'entries'} <span className="dot">·</span> even odds{' '}
-                <span className="dot">·</span> press space to spin
-              </>
-            )}
-          </p>
-        </div>
+        </main>
 
-        <EntryEditor
-          store={store}
-          disabled={spinning}
-          removeWinner={removeWinner}
-          onRemoveWinnerChange={setRemoveWinner}
-        />
-      </main>
+        <Showreel />
+      </div>
 
       {winner && (
-        <WinnerReveal
-          winner={winner}
-          removed={removeWinner}
-          onSpinAgain={() => dismiss(true)}
-          onClose={() => dismiss(false)}
-        />
+        <WinnerReveal winner={winner} removed={removeWinner} onClose={() => dismiss(false)} />
       )}
+
+      <EntryEditor
+        store={store}
+        open={editing}
+        disabled={spinning}
+        sound={sound}
+        onSoundChange={setSound}
+        removeWinner={removeWinner}
+        onRemoveWinnerChange={setRemoveWinner}
+        onClose={() => setEditing(false)}
+      />
     </div>
   )
 }

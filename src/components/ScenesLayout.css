@@ -1,0 +1,683 @@
+/*
+ * LAS FICHAS DEL PRODUCTO, cada una con su propia planta.
+ *
+ * La pantalla es un banner ancho (~952 × 457). Todas se arman con grilla y flex:
+ * ni una caja colgada de un `top: 62%`. Eso es lo que rompía las versiones
+ * anteriores — cuando la caja real no medía lo que suponía el porcentaje, las
+ * cosas se salían por abajo o se montaban unas sobre otras.
+ *
+ * Y ninguna comparte planta con otra. Lo único común es el material: panel teal,
+ * grilla de fondo, tarjetas en blanco al 6%, cable gris con corriente de menta.
+ */
+
+/* ---- cable en su propia celda ------------------------------------------- */
+
+/* Coordenadas en porcentaje de SU celda, no de la escena. Es lo que hace que el
+   cable toque exactamente el borde de la tarjeta que tiene al lado. */
+.sc-wire-box {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ═══ MULTICANAL ══════════════════════════════════════════════════════════════ */
+
+.ch {
+  position: absolute;
+  inset: 0;
+  background: #0f4a52;
+  border-radius: inherit;
+}
+
+.ch-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(3rem, 1fr) 20rem;
+  align-items: center;
+  padding: 1.5rem 1.8rem;
+}
+
+/* Los cinco chips se reparten el alto en quintos: es la misma división que usan
+   los cinco carriles del SVG de al lado, y eso es lo que los hace coincidir. */
+.ch-rail {
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+  align-items: center;
+  justify-items: start;
+  height: 100%;
+}
+
+/* Ancho FIJO y no "lo que mida el logo": con anchos distintos cada cable
+   arrancaba de un x distinto y ninguno llegaba a tocar su chip. */
+.ch-chip {
+  display: grid;
+  place-items: center;
+  width: 11rem;
+  height: 3.1rem;
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 0.07);
+  border: 1px solid rgb(255 255 255 / 0.14);
+}
+
+.ch-logo {
+  flex: none;
+  height: var(--logo-h);
+  width: auto;
+  max-width: 76%;
+  object-fit: contain;
+  /* Aplasta a negro y levanta a blanco sin tocar el alfa — es lo que deja
+     convivir SVG y PNG en la misma columna. */
+  filter: brightness(0) invert(1);
+  opacity: 0.88;
+}
+
+.ch-wires {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ch-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.2rem 1.3rem;
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.14);
+}
+
+.ch-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ch-panel-mark {
+  width: 1.4rem;
+  height: auto;
+  color: var(--mint);
+}
+
+.ch-panel-title {
+  font-family: var(--font-inter);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgb(255 255 255 / 0.92);
+  white-space: nowrap;
+}
+
+.ch-panel-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.ch-panel-row .sc-bar {
+  flex: 1;
+}
+
+.ch-panel-v {
+  font-family: var(--font-aktiv);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: rgb(255 255 255 / 0.85);
+}
+
+/* El punto de confluencia, pegado al canto izquierdo del panel. Va FUERA del SVG
+   porque ése se estira, y un círculo estirado es un óvalo. */
+.ch-merge {
+  position: absolute;
+  right: 21.8rem;
+  top: 50%;
+  z-index: 3;
+  width: 0.8rem;
+  height: 0.8rem;
+  translate: 50% -50%;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0.7rem rgb(159 232 216 / 0.9);
+}
+
+/* ═══ STOCK ═══════════════════════════════════════════════════════════════════
+   El árbol acostado: la venta entra por la izquierda y se reparte en tres. */
+
+.stk {
+  position: absolute;
+  inset: 0;
+  background: #0f4a52;
+  border-radius: inherit;
+}
+
+.stk-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(4rem, 1fr) 22rem;
+  align-items: center;
+  padding: 1.5rem 1.8rem;
+}
+
+.stk-in {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.stk-sale {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.6rem;
+  background: rgb(255 255 255 / 0.08);
+  border: 1px solid rgb(255 255 255 / 0.18);
+  font-family: var(--font-inter);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--white);
+  white-space: nowrap;
+}
+
+.stk-sku {
+  font-family: var(--font-aktiv);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgb(255 255 255 / 0.45);
+  padding-left: 0.2rem;
+}
+
+.stk-wires {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Tres depósitos repartiéndose el alto: la misma división en tercios que usan
+   los tres bajantes del SVG. */
+.stk-out {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  align-content: center;
+  gap: 0.7rem;
+  height: 100%;
+  padding-block: 0.4rem;
+}
+
+.stk-depot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 0.7rem;
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.13);
+}
+
+.stk-depot-name {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: rgb(255 255 255 / 0.8);
+  white-space: nowrap;
+}
+
+.stk-depot-val {
+  position: relative;
+  display: block;
+  width: 5rem;
+  height: 2.2rem;
+  flex: none;
+}
+
+.stk-a,
+.stk-b {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-family: var(--font-inter);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--white);
+}
+
+.stk-node {
+  position: absolute;
+  /* Cae sobre el nodo del SVG: la columna del medio arranca después del chip. */
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 0.8rem;
+  height: 0.8rem;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0.7rem rgb(159 232 216 / 0.9);
+}
+
+/* ═══ FACTURACIÓN ═════════════════════════════════════════════════════════════
+   Tres estaciones en fila con la corriente pasando entre ellas. */
+
+.bil {
+  position: absolute;
+  inset: 0;
+  background: #0f4a52;
+  border-radius: inherit;
+}
+
+.bil-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr minmax(2.5rem, 0.5fr) 0.9fr minmax(2.5rem, 0.5fr) 1fr;
+  align-items: center;
+  padding: 1.8rem 1.8rem;
+}
+
+.bil-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.3rem 1.4rem;
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.14);
+}
+
+.bil-card--mid {
+  align-items: center;
+  text-align: center;
+}
+
+.bil-card--out {
+  border-color: rgb(159 232 216 / 0.45);
+}
+
+.bil-cap {
+  margin: 0;
+  font-family: var(--font-aktiv);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.5);
+}
+
+.bil-val {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--white);
+  white-space: nowrap;
+}
+
+.bil-tick {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  background: rgb(159 232 216 / 0.18);
+  color: var(--mint);
+}
+
+.bil-tick svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.bil-wire {
+  height: 100%;
+}
+
+/* ═══ LOGÍSTICA ═══════════════════════════════════════════════════════════════ */
+
+.shp {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  padding: 1.6rem 1.8rem 1.9rem;
+  background: #0f4a52;
+  border-radius: inherit;
+}
+
+.shp-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: start;
+  gap: 1.1rem;
+  min-height: 0;
+}
+
+.shp-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem 0.8rem 0.85rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 0.95);
+  box-shadow: 0 0.6rem 1.5rem -0.9rem rgb(0 0 0 / 0.6);
+}
+
+.shp-label-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.shp-label-id {
+  font-family: var(--font-aktiv);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #12464d;
+}
+
+.shp-label-mark {
+  width: 0.8rem;
+  height: auto;
+  color: rgb(18 70 77 / 0.45);
+}
+
+/* La BANDA del código, con proporción propia. Sin esto el código era un
+   `flex: 1` dentro de una tarjeta alta y las barras salían estiradas. */
+.shp-code {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 2;
+  background: repeating-linear-gradient(
+    90deg,
+    #12464d 0 2px,
+    transparent 2px 4px,
+    #12464d 4px 7px,
+    transparent 7px 9px,
+    #12464d 9px 10px,
+    transparent 10px 14px
+  );
+}
+
+.shp-label-to {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: rgb(18 70 77 / 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shp-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  justify-items: center;
+}
+
+/* El riel va detrás y sólo entre el primer punto y el último: de borde a borde
+   quedaban dos colas sueltas a los costados. */
+.shp-track-rail {
+  position: absolute;
+  left: 16.6%;
+  right: 16.6%;
+  top: 0.5rem;
+  height: 2px;
+  background: rgb(255 255 255 / 0.16);
+}
+
+.shp-track-fill {
+  display: block;
+  height: 100%;
+  background: var(--mint);
+}
+
+.shp-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.shp-dot {
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0.7rem rgb(159 232 216 / 0.8);
+}
+
+.shp-name {
+  font-family: var(--font-inter);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgb(255 255 255 / 0.86);
+  white-space: nowrap;
+}
+
+/* ═══ ALERTAS ═════════════════════════════════════════════════════════════════ */
+
+.alr {
+  position: absolute;
+  inset: 0;
+  background: #0f4a52;
+  border-radius: inherit;
+}
+
+.alr-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 2.4rem;
+  padding: 1.6rem 2rem;
+}
+
+.alr-core {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 1.5rem;
+  background: rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  color: var(--white);
+}
+
+.alr-core-mark {
+  width: 3rem;
+  height: auto;
+}
+
+.alr-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgb(159 232 216 / 0.7);
+}
+
+.alr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.alr-item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.95rem 1.1rem;
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.13);
+  border-left-width: 4px;
+  min-width: 0;
+}
+
+/* Tres tonos, y son los tres que ya usa la landing para estados. */
+.alr-item--warn {
+  border-left-color: #ffd27a;
+}
+.alr-item--info {
+  border-left-color: var(--mint);
+}
+.alr-item--alert {
+  border-left-color: #ffa593;
+}
+
+.alr-mark {
+  width: 0.8rem;
+  height: 0.9rem;
+  flex: none;
+  background: currentColor;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.alr-item--warn .alr-mark {
+  color: #ffd27a;
+}
+.alr-item--info .alr-mark {
+  color: var(--mint);
+}
+.alr-item--alert .alr-mark {
+  color: #ffa593;
+}
+
+.alr-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.alr-title {
+  font-family: var(--font-inter);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alr-sub {
+  font-family: var(--font-inter);
+  font-size: 1.02rem;
+  font-weight: 300;
+  color: rgb(255 255 255 / 0.58);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ═══ API + MCP ═══════════════════════════════════════════════════════════════ */
+
+.api {
+  position: absolute;
+  inset: 0;
+  background: #0f4a52;
+  border-radius: inherit;
+}
+
+.api-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(3rem, 1fr) auto minmax(3rem, 1fr) 17rem;
+  align-items: center;
+  padding: 1.6rem 1.8rem;
+}
+
+.api-clients {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+}
+
+.api-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.8rem 1.15rem;
+  border-radius: 0.6rem;
+  background: rgb(255 255 255 / 0.07);
+  border: 1px solid rgb(255 255 255 / 0.16);
+  font-family: var(--font-inter);
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: rgb(255 255 255 / 0.92);
+  white-space: nowrap;
+}
+
+.api-wires {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.api-core {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 1.5rem;
+  background: rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  color: var(--white);
+}
+
+.api-core-mark {
+  width: 3rem;
+  height: auto;
+}
+
+.api-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgb(159 232 216 / 0.7);
+}
+
+.api-out {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.14);
+}
+
+.api-out-title {
+  margin: 0 0 0.15rem;
+  font-family: var(--font-inter);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgb(255 255 255 / 0.92);
+  white-space: nowrap;
+}

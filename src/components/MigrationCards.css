@@ -1,0 +1,122 @@
+/*
+ * Una tarjeta a la vez. Todo el layout es flujo normal —grid y flex, sin una
+ * sola posición en porcentaje— porque lo que rompía las escenas anteriores era
+ * justamente eso: cajas colocadas con `top: 62%` que a otra altura de pantalla
+ * se pisan entre sí o se salen por abajo.
+ */
+
+.mig {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 1.1rem;
+  padding: 1.4rem 1.5rem 1.2rem;
+  background: #0f4a52;
+  border-radius: inherit;
+}
+
+/* Las cuatro tarjetas se apilan en el mismo lugar; sólo una está en cuadro. */
+.mig-stage {
+  position: relative;
+  min-height: 0;
+}
+
+.mig-card {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: 1.3rem;
+  will-change: transform;
+}
+
+/* La ilustración, sobre su placa blanca. `aspect-ratio` y no un alto fijo: el
+   arte es cuadrado, y con un alto suelto se deformaba al cambiar la caja. */
+.mig-art {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 1rem;
+  border-radius: 0.7rem;
+  background: rgb(255 255 255 / 0.95);
+}
+
+/* Va como MÁSCARA y no como <img>: los PNG del mazo son arte monocromo sobre
+   transparencia, así que enmascarando un bloque teal salen del color de la marca
+   en vez del gris con el que se exportaron. Igual que `.mv2-card-img`. */
+.mig-art span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  background-color: #12464d;
+  -webkit-mask: var(--art) center / contain no-repeat;
+  mask: var(--art) center / contain no-repeat;
+}
+
+.mig-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.mig-step {
+  margin: 0;
+  font-family: var(--font-aktiv);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.5);
+}
+
+.mig-title {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  text-wrap: balance;
+}
+
+.mig-line {
+  margin: 0;
+  font-family: var(--font-inter);
+  font-size: 1.02rem;
+  font-weight: 300;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 0.66);
+  text-wrap: pretty;
+}
+
+/* ---- el riel ------------------------------------------------------------- */
+
+/* Cuatro segmentos, uno por paso, y cada uno se llena mientras su tarjeta está
+   en pantalla. Reemplaza a ver los cuatro pasos a la vez: dice en cuál va sin
+   tener que mostrarlos todos. */
+.mig-rail {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.mig-seg {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+  overflow: hidden;
+}
+
+.mig-seg span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--mint);
+}

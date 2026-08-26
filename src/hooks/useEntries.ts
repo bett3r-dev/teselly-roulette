@@ -7,15 +7,40 @@ import { usePersisted } from './usePersisted'
 export const MAX_ENTRIES = 60
 export const MAX_LABEL = 40
 
+/**
+ * Los premios del stand. Se editan desde el panel (tecla E).
+ *
+ * Cada premio aparece tantas veces como se quiera que salga: iPhone 1, camiseta
+ * 1, tres meses 3, un mes 5, 15% 3, 25% 3 y «seguí participando» 4 — veinte
+ * gajos en total.
+ *
+ * El ORDEN está entreverado a propósito. Puestos en bloques —los cinco «1 mes
+ * gratis» juntos— la rueda muestra a simple vista dónde está cada cosa y deja de
+ * tener gracia; y dos gajos iguales pegados se leen como uno solo del doble de
+ * ancho. Acá no hay dos iguales que se toquen, contando la vuelta del último al
+ * primero.
+ */
 const STARTER = [
-  'Coffee for a week',
-  'Free lunch',
-  'Extra day off',
-  'Gift card',
-  'Mystery box',
-  'Movie night',
-  'Spin again',
-  'Better luck next time',
+  'iPhone 17 Pro Max',
+  '1 mes gratis',
+  '15% descuento un año',
+  'Seguí participando',
+  '3 meses gratis',
+  '1 mes gratis',
+  '25% descuento 6 meses',
+  'Seguí participando',
+  '1 mes gratis',
+  '15% descuento un año',
+  'Camiseta Argentina',
+  'Seguí participando',
+  '1 mes gratis',
+  '25% descuento 6 meses',
+  '3 meses gratis',
+  'Seguí participando',
+  '1 mes gratis',
+  '15% descuento un año',
+  '3 meses gratis',
+  '25% descuento 6 meses',
 ]
 
 function seed(): Entry[] {
@@ -38,7 +63,7 @@ const isEntryList = (value: unknown): boolean =>
   )
 
 export function useEntries() {
-  const [entries, setEntries] = usePersisted<Entry[]>('teselly-wheel.entries', seed, isEntryList)
+  const [entries, setEntries] = usePersisted<Entry[]>('teselly-wheel.entries.v2', seed, isEntryList)
 
   const add = useCallback(
     (label: string) => {
