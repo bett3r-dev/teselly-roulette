@@ -28,34 +28,84 @@ const RUN = FACE - 12 - HUB - HUB_CLEAR // espacio radial para una etiqueta
  */
 const CHAR = 0.58
 
+/** Lo más grande que se deja crecer una etiqueta. */
+const MAX_SIZE = 9.4
+/** Cuántos renglones se permiten como mucho. */
+const MAX_LINES = 3
+/** Alto de renglón, en múltiplos del cuerpo. */
+const LINE_H = 1.06
+
 /**
- * Tipografía tan grande como la dejen sus vecinas, y después encogida (no
- * cortada) para entrar en el radio — un nombre largo pierde tamaño antes que
- * letras.
+ * Parte la etiqueta en `lines` renglones dejándolos lo más parejos posible.
+ *
+ * Prueba todos los cortes posibles y se queda con el que deja el renglón más
+ * largo lo más corto posible — que es exactamente lo que decide el tamaño de
+ * letra. Los premios tienen dos, tres o cuatro palabras, así que son un puñado
+ * de combinaciones y no hace falta nada más astuto.
+ */
+function wrap(label: string, lines: number): string[] | null {
+  const words = label.split(/\s+/).filter(Boolean)
+  if (words.length < lines) return null
+  const cortes = words.length - 1
+  let best: string[] | null = null
+
+  const elegir = (desde: number, puestos: number[]) => {
+    if (puestos.length === lines - 1) {
+      const partes: string[] = []
+      let prev = 0
+      for (const g of puestos) {
+        partes.push(words.slice(prev, g + 1).join(' '))
+        prev = g + 1
+      }
+      partes.push(words.slice(prev).join(' '))
+      const largo = (ps: string[]) => Math.max(...ps.map((x) => x.length))
+      if (!best || largo(partes) < largo(best)) best = partes
+      return
+    }
+    for (let g = desde; g < cortes; g++) elegir(g + 1, [...puestos, g])
+  }
+
+  elegir(0, [])
+  return best
+}
+
+/**
+ * Cuánto puede medir la letra y en cuántos renglones.
+ *
+ * El límite NO es el ancho del gajo —con siete premios sobra— sino el RADIO: hay
+ * 58 unidades entre el borde y el cubo, y en un solo renglón «25% descuento 6
+ * meses» tenía que achicarse hasta que ya no entraba y terminaba con puntos
+ * suspensivos. En dos o tres renglones el renglón más largo es la mitad o un
+ * tercio, así que la letra queda MÁS GRANDE y entera.
+ *
+ * Se prueban una, dos y tres líneas y gana la que permite la letra más grande;
+ * a igualdad, la de menos renglones.
  */
 function fitLabel(label: string, segmentAngle: number) {
   const arc = (segmentAngle * Math.PI * 55) / 180
-  let size = Math.max(3.2, Math.min(9.4, arc * 0.6))
+  let best = { size: 0, lines: [label] as string[] }
 
-  const needed = label.length * size * CHAR
-  const tight = needed > RUN
-  if (tight) size = Math.max(size * 0.6, RUN / (label.length * CHAR))
+  for (let n = 1; n <= MAX_LINES; n++) {
+    const parts = n === 1 ? [label] : wrap(label, n)
+    if (!parts) continue
+    const largest = Math.max(...parts.map((p) => p.length))
+    // Por el radio disponible, y por el ancho del gajo con los renglones apilados.
+    const size = Math.min(MAX_SIZE, RUN / (largest * CHAR), (arc * 0.62) / (n * LINE_H))
+    if (size > best.size + 0.01) best = { size, lines: parts }
+  }
 
-  const maxChars = Math.floor(RUN / (size * CHAR))
-  const text =
-    label.length > maxChars ? `${label.slice(0, Math.max(1, maxChars - 1)).trimEnd()}…` : label
-
-  /**
-   * El tope duro. `CHAR` estima, y una estimación se equivoca — por eso el texto
-   * terminaba a veces abajo del cubo. Cuando hubo que encoger (o sea, cuando el
-   * premio ya venía largo) se le pasa además un `textLength`, que obliga al
-   * navegador a que el ancho REAL sea exactamente el disponible. Deja de ser una
-   * cuenta y pasa a ser una garantía.
+  /*
+   * El tope duro. `CHAR` estima, y una estimación se equivoca — por eso alguna
+   * etiqueta terminaba abajo del cubo. Al renglón que queda pegado al límite se
+   * le pasa además un `textLength`, que obliga al navegador a que el ancho REAL
+   * sea el disponible. Deja de ser una cuenta y pasa a ser una garantía.
    *
-   * Sólo en ese caso: aplicado siempre, `textLength` también ESTIRA los nombres
+   * Sólo a ése: aplicado a todos, `textLength` también ESTIRA los renglones
    * cortos hasta el borde del cubo, que es el defecto opuesto.
    */
-  return { size, text, cap: tight ? RUN : undefined }
+  const cap = (line: string) => (line.length * best.size * CHAR > RUN * 0.92 ? RUN : undefined)
+
+  return { size: best.size, lines: best.lines, cap }
 }
 
 const Face = memo(function Face({
@@ -72,26 +122,35 @@ const Face = memo(function Face({
       {entries.map((entry, i) => {
         const start = i * segment
         const middle = start + segment / 2
-        const { size, text, cap } = fitLabel(entry.label, segment)
+        const { size, lines, cap } = fitLabel(entry.label, segment)
         const won = entry.id === winnerId
         // Las etiquetas pasadas las 6 se dan vuelta, así todas se leen derechas.
         const flipped = middle > 180
+        const x = flipped ? -(FACE - 12) : FACE - 12
         return (
           <g key={entry.id} className={won ? 'seg seg--won' : 'seg'}>
             <path d={slicePath(start, start + segment, FACE)} fill={entry.color} />
             <g transform={`rotate(${middle - 90 + (flipped ? 180 : 0)})`}>
               <text
                 className="seg__label"
-                x={flipped ? -(FACE - 12) : FACE - 12}
+                x={x}
                 y={0}
                 fontSize={size}
                 fill={inkOn(entry.color)}
                 textAnchor={flipped ? 'start' : 'end'}
                 dominantBaseline="central"
-                textLength={cap}
-                lengthAdjust={cap ? 'spacingAndGlyphs' : undefined}
               >
-                {text}
+                {lines.map((line, li) => (
+                  <tspan
+                    key={line}
+                    x={x}
+                    dy={li === 0 ? `${(-(lines.length - 1) * LINE_H) / 2}em` : `${LINE_H}em`}
+                    textLength={cap(line)}
+                    lengthAdjust={cap(line) ? 'spacingAndGlyphs' : undefined}
+                  >
+                    {line}
+                  </tspan>
+                ))}
               </text>
             </g>
           </g>

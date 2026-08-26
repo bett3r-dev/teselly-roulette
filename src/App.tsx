@@ -12,10 +12,25 @@ import { useSound } from './hooks/useSound'
 import { useSpin } from './hooks/useSpin'
 import type { Entry } from './types'
 
+/**
+ * Cuánto queda el gajo ganador resaltado, solo, antes de que se abra el anuncio.
+ *
+ * La rueda para y lo primero que tiene que pasar es que la gente VEA dónde
+ * quedó: el gajo se enciende y el modal espera. Antes el anuncio tapaba la rueda
+ * en el mismo cuadro en que frenaba, y no se llegaba a ver el resultado en la
+ * rueda — que es la mitad de la gracia de una ruleta.
+ *
+ * Se exporta porque los tests avanzan el reloj a mano.
+ */
+export const REVEAL_DELAY_MS = 1800
+
 export default function App() {
   const store = useEntries()
   const [sound, setSound] = usePersisted('teselly-wheel.sound', true)
   const [removeWinner, setRemoveWinner] = usePersisted('teselly-wheel.remove-winner', false)
+  /** El gajo donde frenó: se resalta ni bien para. */
+  const [landed, setLanded] = useState<Entry | null>(null)
+  /** Y el anuncio, que llega después. */
   const [winner, setWinner] = useState<Entry | null>(null)
   const [queuedSpin, setQueuedSpin] = useState(false)
   /** El panel de carga NO es parte de la pieza: la pantalla del televisor son
@@ -29,12 +44,18 @@ export default function App() {
   const latest = useRef({ entries: store.entries, removeWinner })
   latest.current = { entries: store.entries, removeWinner }
 
+  const revealTimer = useRef(0)
+  useEffect(() => () => clearTimeout(revealTimer.current), [])
+
   const onSettle = useCallback(
     (index: number) => {
       const won = latest.current.entries[index]
       if (!won) return
-      setWinner(won)
+      // Primero el gajo, solo, en la rueda; el anuncio entra después.
+      setLanded(won)
       fanfare()
+      clearTimeout(revealTimer.current)
+      revealTimer.current = window.setTimeout(() => setWinner(won), REVEAL_DELAY_MS)
     },
     [fanfare],
   )
@@ -42,8 +63,10 @@ export default function App() {
   const { rotation, velocity, spinning, spin } = useSpin({ onPeg: peg, onSettle })
 
   const startSpin = useCallback(() => {
+    clearTimeout(revealTimer.current)
+    setLanded(null)
     setWinner(null)
-    spin(latest.current.entries.length)
+    spin(latest.current.entries.map((e) => e.weight))
   }, [spin])
 
   /** El ganador sale de la rueda recién cuando se cierra el anuncio, así el
@@ -51,6 +74,8 @@ export default function App() {
   const dismiss = useCallback(
     (thenSpin: boolean) => {
       if (winner && latest.current.removeWinner) store.remove(winner.id)
+      clearTimeout(revealTimer.current)
+      setLanded(null)
       setWinner(null)
       if (thenSpin) setQueuedSpin(true)
     },
@@ -129,8 +154,8 @@ export default function App() {
             rotation={rotation}
             velocity={velocity}
             spinning={spinning}
-            winnerId={winner?.id ?? null}
-            celebrating={winner !== null}
+            winnerId={landed?.id ?? null}
+            celebrating={landed !== null}
             onSpin={startSpin}
           />
         </main>

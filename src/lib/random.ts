@@ -30,3 +30,21 @@ export function shuffle<T>(items: T[]): T[] {
 export function makeId(): string {
   return crypto.randomUUID?.() ?? `e${Date.now()}${randomInt(1e6)}`
 }
+
+/**
+ * Elige un índice con probabilidad proporcional a su peso.
+ *
+ * Tira un número en [0, total) y camina la lista restando: el primero que se
+ * pasa es el ganador. Con pesos iguales da lo mismo que sortear parejo, así que
+ * sirve igual si algún día se emparejan.
+ */
+export function weightedInt(weights: number[]): number {
+  const total = weights.reduce((a, w) => a + Math.max(0, w), 0)
+  if (total <= 0) return randomInt(weights.length)
+  let n = randomFloat() * total
+  for (let i = 0; i < weights.length; i++) {
+    n -= Math.max(0, weights[i])
+    if (n < 0) return i
+  }
+  return weights.length - 1
+}

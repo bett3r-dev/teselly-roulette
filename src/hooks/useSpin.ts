@@ -1,11 +1,45 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { mod360, rotationForIndex } from '../lib/geometry'
-import { randomFloat, randomInt } from '../lib/random'
+import { randomFloat, randomInt, weightedInt } from '../lib/random'
 
-const SPIN_MS = 9400
+/** Lo que dura un giro. Se exporta porque los tests avanzan el reloj a mano y
+    con un número copiado leían la rueda a mitad de camino. */
+export const SPIN_MS = 34_000
 const REDUCED_MS = 900
-const TURNS_MIN = 4
-const TURNS_SPREAD = 3
+/*
+ * Vueltas y duración van juntas: son la VELOCIDAD.
+ *
+ * Estirar sólo el tiempo dejando las vueltas de antes daría una rueda lenta pero
+ * también floja de arranque; y subir las vueltas sin el tiempo la haría girar más
+ * rápido. Con 17 s y 3-5 vueltas la rueda arranca con ganas, cruza despacio y se
+ * pasa los últimos segundos decidiéndose gajo por gajo, que es donde está la
+ * gracia en un stand: la gente alcanza a leer los premios que va pasando.
+ */
+/*
+ * VUELTAS. Subieron de 3-5 a 6-10, y no es un capricho: son lo que hace que la
+ * rueda pueda ir despacio y tardar mucho AL MISMO TIEMPO.
+ *
+ * Una rueda que da 4 vueltas en 34 s tiene que arrastrarse; una que da 8 puede
+ * salir a paso normal y frenar de a poco durante medio minuto. El pico bajó de
+ * 294°/s a 228°/s —o sea que gira MÁS LENTO— aunque dé el doble de vueltas.
+ */
+const TURNS_MIN = 6
+const TURNS_SPREAD = 4
+
+/**
+ * Con qué fuerza frena sobre el final.
+ *
+ * OJO con subirlo para "alargar la frenada": hace lo contrario de lo que parece.
+ * Con 5,2 la rueda se movía 0,62° en los últimos CINCO segundos y 0,01° en los
+ * últimos dos — no frenaba despacio, se congelaba, y una rueda quieta que
+ * todavía no cantó el premio se lee como que se colgó.
+ *
+ * Una rueda real frena por rozamiento: la velocidad baja parejo y sigue
+ * avanzando hasta el final. Eso es el exponente 2. Con 2,4 —apenas por encima—
+ * queda el arrastre de feria sin el congelamiento: recorre casi un gajo entero
+ * en los últimos cinco segundos, que es donde la gente ve pasar su premio.
+ */
+const DECAY = 2.4
 
 /**
  * EL CULATAZO. Antes de largar, la rueda va un poco para atrás y vuelve — el
@@ -16,8 +50,13 @@ const TURNS_SPREAD = 3
 const WIND_DEG = 17
 /** Qué parte del giro se lleva el culatazo. Durante ese tramo `ease` vale 0. */
 const WIND_T = 0.12
-/** Y cuánto tarda en llegar a velocidad de crucero una vez que largó. */
-const LAUNCH = 0.17
+/**
+ * Y cuánto tarda en llegar a velocidad de crucero una vez que largó. Bajó de
+ * 0.17 a 0.06: sobre 26 s, aquella rampa eran cuatro segundos y medio subiendo,
+ * que no se parece a nadie tirando de una rueda. Ahora toma velocidad en poco
+ * más de un segundo y el resto del tiempo se lo lleva la frenada.
+ */
+const LAUNCH = 0.05
 
 /**
  * La curva del giro.
@@ -42,7 +81,7 @@ const ease = (t: number) => {
   const w = (t - WIND_T) / (1 - WIND_T)
   const acc = LAUNCH / 2
   const u = w < LAUNCH ? (w * w) / (2 * LAUNCH) : w - acc
-  return 1 - (1 - u / (1 - acc)) ** 3.4
+  return 1 - (1 - u / (1 - acc)) ** DECAY
 }
 
 /**
@@ -77,10 +116,18 @@ export function useSpin({ onPeg, onSettle }: Options = {}) {
 
   useEffect(() => () => cancelAnimationFrame(frame.current), [])
 
-  const spin = useCallback((count: number) => {
+  /**
+   * `weights` son las chances de cada gajo, en el mismo orden que la rueda.
+   *
+   * El ganador se sortea con esos pesos y RECIÉN DESPUÉS se calcula el ángulo
+   * para dejarlo bajo el puntero: la rueda no decide nada, sólo lleva a donde ya
+   * se decidió. Por eso los gajos pueden ser todos iguales y las chances no.
+   */
+  const spin = useCallback((weights: number[]) => {
+    const count = weights.length
     if (spinningRef.current || count < 1) return
 
-    const winner = randomInt(count)
+    const winner = weightedInt(weights)
     const turns = TURNS_MIN + randomInt(TURNS_SPREAD + 1)
     const from = rotationRef.current
     const to = rotationForIndex(winner, count, from, turns, randomFloat() - 0.5)

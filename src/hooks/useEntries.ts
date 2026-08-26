@@ -1,51 +1,40 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { autoColors, cycleColor, nextColor } from '../lib/palette'
 import { makeId, shuffle } from '../lib/random'
 import type { Entry } from '../types'
-import { usePersisted } from './usePersisted'
 
 export const MAX_ENTRIES = 60
 export const MAX_LABEL = 40
 
 /**
- * Los premios del stand. Se editan desde el panel (tecla E).
+ * Los premios del stand y sus chances, en porcentaje.
  *
- * Cada premio aparece tantas veces como se quiera que salga: iPhone 1, camiseta
- * 1, tres meses 3, un mes 5, 15% 3, 25% 3 y «seguí participando» 4 — veinte
- * gajos en total.
+ * Van hardcodeados a propósito: antes se guardaban en el navegador y una lista
+ * vieja de la máquina del stand le ganaba a ésta, así que la pantalla arrancaba
+ * con premios que ya no existían y no había forma de notarlo mirándola.
  *
- * El ORDEN está entreverado a propósito. Puestos en bloques —los cinco «1 mes
- * gratis» juntos— la rueda muestra a simple vista dónde está cada cosa y deja de
- * tener gracia; y dos gajos iguales pegados se leen como uno solo del doble de
- * ancho. Acá no hay dos iguales que se toquen, contando la vuelta del último al
- * primero.
+ * OJO con la relación entre el `pct` y lo que se ve: la rueda dibuja SIETE GAJOS
+ * IGUALES y el ganador se sortea con estos pesos. Quien gira ve un séptimo de
+ * rueda para el iPhone —14%— cuando en realidad tiene 5%. Es una decisión
+ * tomada, no un descuido: así las etiquetas entran grandes en el televisor y los
+ * porcentajes se cambian acá sin tocar el dibujo.
+ *
+ * Los `pct` no necesitan sumar 100: el sorteo los normaliza. Suman 100 porque
+ * así se leen de una.
  */
-const STARTER = [
-  'iPhone 17 Pro Max',
-  '1 mes gratis',
-  '15% descuento un año',
-  'Seguí participando',
-  '3 meses gratis',
-  '1 mes gratis',
-  '25% descuento 6 meses',
-  'Seguí participando',
-  '1 mes gratis',
-  '15% descuento un año',
-  'Camiseta Argentina',
-  'Seguí participando',
-  '1 mes gratis',
-  '25% descuento 6 meses',
-  '3 meses gratis',
-  'Seguí participando',
-  '1 mes gratis',
-  '15% descuento un año',
-  '3 meses gratis',
-  '25% descuento 6 meses',
+const STARTER: { label: string; pct: number }[] = [
+  { label: 'iPhone 17 Pro Max', pct: 5 },
+  { label: '1 mes gratis', pct: 25 },
+  { label: '3 meses gratis', pct: 15 },
+  { label: 'Seguí participando', pct: 20 },
+  { label: '15% descuento un año', pct: 15 },
+  { label: 'Camiseta Argentina', pct: 5 },
+  { label: '25% descuento 6 meses', pct: 15 },
 ]
 
 function seed(): Entry[] {
   const colors = autoColors(STARTER.length)
-  return STARTER.map((label, i) => ({ id: makeId(), label, color: colors[i] }))
+  return STARTER.map((p, i) => ({ id: makeId(), label: p.label, color: colors[i], weight: p.pct }))
 }
 
 /** Trim, drop blanks, cap the length, and keep the wheel under its ceiling. */
@@ -56,14 +45,17 @@ function clean(labels: string[]): string[] {
     .slice(0, MAX_ENTRIES)
 }
 
-const isEntryList = (value: unknown): boolean =>
-  Array.isArray(value) &&
-  value.every(
-    (e) => e && typeof e.id === 'string' && typeof e.label === 'string' && typeof e.color === 'string',
-  )
-
 export function useEntries() {
-  const [entries, setEntries] = usePersisted<Entry[]>('teselly-wheel.entries.v2', seed, isEntryList)
+  /*
+   * Los premios NO se guardan en el navegador.
+   *
+   * Antes se persistían, y una lista vieja guardada en la máquina del stand le
+   * ganaba a la de acá: la pantalla arrancaba con premios que ya no existían y no
+   * había forma de darse cuenta mirándola. Ahora cada arranque sale de `STARTER`,
+   * que es la fuente única. El panel (tecla E) sigue sirviendo para retocar algo
+   * en el momento, pero eso dura lo que dura la sesión.
+   */
+  const [entries, setEntries] = useState<Entry[]>(seed)
 
   const add = useCallback(
     (label: string) => {
@@ -73,7 +65,17 @@ export function useEntries() {
       setEntries((current) => {
         if (current.length >= MAX_ENTRIES) return current
         added = true
-        return [...current, { id: makeId(), label: clean1, color: nextColor(current.map((e) => e.color)) }]
+        return [
+          ...current,
+          {
+            id: makeId(),
+            label: clean1,
+            color: nextColor(current.map((e) => e.color)),
+            // Un premio agregado a mano entra con las chances promedio de los
+            // que ya están: es lo único que no sorprende a quien lo agrega.
+            weight: current.length ? current.reduce((a, e) => a + e.weight, 0) / current.length : 100,
+          },
+        ]
       })
       return added
     },
@@ -112,7 +114,12 @@ export function useEntries() {
           out.push(
             kept && !out.some((e) => e.id === kept.id)
               ? kept
-              : { id: makeId(), label, color: nextColor(out.map((e) => e.color)) },
+              : {
+                  id: makeId(),
+                  label,
+                  color: nextColor(out.map((e) => e.color)),
+                  weight: 100 / Math.max(1, out.length + 1),
+                },
           )
         }
         return out

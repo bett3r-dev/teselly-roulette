@@ -50,8 +50,28 @@
   stroke-width: 0.6;
 }
 
+/*
+ * EL GAJO GANADOR. La rueda para y esto es lo primero que se ve: se enciende, se
+ * le dibuja el contorno en menta y late despacio, solo, hasta que entra el
+ * anuncio. Antes era un `brightness(1.18)` y nada más — a cinco metros no se
+ * distinguía cuál había salido, que es justo lo que la gente está mirando.
+ */
 .seg--won path:first-child {
-  filter: brightness(1.18) saturate(1.15);
+  stroke: var(--mint);
+  stroke-width: 1.6;
+  paint-order: stroke;
+  filter: brightness(1.3) saturate(1.22) drop-shadow(0 0 2.5px rgb(159 232 216 / 0.85));
+  animation: seg-won 0.85s ease-in-out infinite alternate;
+}
+
+.seg--won .seg__label {
+  font-weight: 800;
+}
+
+@keyframes seg-won {
+  to {
+    filter: brightness(1.58) saturate(1.34) drop-shadow(0 0 5px rgb(159 232 216 / 0.95));
+  }
 }
 
 .peg {
@@ -179,5 +199,12 @@
   .wheel--celebrating .bulb {
     animation: none;
     fill: var(--mint-bright);
+  }
+
+  /* El latido del gajo ganador es de casi un segundo, o sea que no molesta por
+     frecuencia; se queda quieto igual porque acá lo que importa es que se
+     distinga cuál salió, y el contorno solo ya lo dice. */
+  .seg--won path:first-child {
+    animation: none;
   }
 }

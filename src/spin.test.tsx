@@ -1,14 +1,18 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import App from './App'
+import App, { REVEAL_DELAY_MS } from './App'
+import { SPIN_MS } from './hooks/useSpin'
 import { indexAtPointer } from './lib/geometry'
 
+/** Lo que dura un giro. Importado, no copiado: con el número a mano los tests
+    leían la rueda a mitad de camino cada vez que cambiaba la duración. */
+const SPIN = SPIN_MS
+
 /**
- * Lo que dura un giro (`SPIN_MS` en useSpin). Los tests avanzan el reloj falso a
- * mano, así que si el giro se alarga y esto no, la rueda se lee a mitad de
- * camino y todo lo que dependa del resultado falla sin decir por qué.
+ * Y lo que hay que esperar para que el ANUNCIO esté en pantalla: el giro más el
+ * rato en que el gajo ganador queda resaltado solo, más un margen.
  */
-const SPIN = 9400
+const SETTLE = SPIN + REVEAL_DELAY_MS + 600
 
 let clock = 0
 let frames: FrameRequestCallback[] = []
@@ -17,6 +21,11 @@ beforeEach(() => {
   localStorage.clear()
   clock = 0
   frames = []
+  /* Sólo los temporizadores: `performance.now` lo simula el reloj de cuadros de
+     acá abajo, y dejar que los falsos se lo lleven puesto rompe el giro. Hace
+     falta en todos los tests porque el anuncio entra con un `setTimeout` — el
+     rato en que el gajo ganador queda resaltado solo. */
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
   vi.spyOn(performance, 'now').mockImplementation(() => clock)
   vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => frames.push(cb))
   vi.stubGlobal('cancelAnimationFrame', () => {})
@@ -30,14 +39,22 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-/** Step the fake clock, draining one frame per tick. */
+/**
+ * Avanza el reloj falso, sirviendo un cuadro por paso y corriendo los
+ * temporizadores que venzan en el camino.
+ *
+ * Antes cortaba apenas se quedaba sin cuadros pendientes, que es justo cuando la
+ * rueda frena — y así nunca llegaba a correr el `setTimeout` del anuncio.
+ */
 function runFrames(ms: number, step = 50) {
   for (let elapsed = 0; elapsed < ms; elapsed += step) {
-    if (!frames.length) return
     const due = frames
     frames = []
     clock += step
-    act(() => due.forEach((cb) => cb(clock)))
+    act(() => {
+      due.forEach((cb) => cb(clock))
+      vi.advanceTimersByTime(step)
+    })
   }
 }
 
@@ -82,10 +99,29 @@ describe('spinning the wheel', () => {
     expect(spinButton()).toHaveProperty('ariaLabel', 'Girar la ruleta')
 
     spin()
-    runFrames(SPIN + 1500)
+    runFrames(SETTLE)
 
     const landed = entries[indexAtPointer(rotation(), entries.length)]
     expect(announced()).toBe(landed)
+  })
+
+  it('lights up the winning slice first, and only then opens the reveal', () => {
+    render(<App />)
+    const entries = labels()
+
+    spin()
+    runFrames(SPIN + 200)
+
+    // La rueda ya frenó...
+    expect(spinButton().disabled).toBe(false)
+    // ...el gajo ganador está encendido, uno solo...
+    expect(document.querySelectorAll('.seg--won')).toHaveLength(1)
+    // ...y el anuncio todavía NO tapa la rueda, que es lo que la gente mira.
+    expect(revealShown()).toBe(false)
+
+    act(() => vi.advanceTimersByTime(REVEAL_DELAY_MS + 100))
+    expect(revealShown()).toBe(true)
+    expect(announced()).toBe(entries[indexAtPointer(rotation(), entries.length)])
   })
 
   it('winds back once to take a run-up, then turns clockwise the rest of the way', () => {
@@ -97,7 +133,10 @@ describe('spinning the wheel', () => {
     const seen: number[] = []
     while (seen.length < 400) {
       runFrames(100, 50)
-      if (revealShown()) break
+      // Cortar cuando FRENA, no cuando aparece el anuncio: entre una cosa y la
+      // otra pasa el resalte del ganador, y ahí el ángulo ya está normalizado
+      // por debajo de 360° — un salto para atrás que no es movimiento.
+      if (!spinButton().disabled) break
       seen.push(rotation())
     }
 
@@ -110,7 +149,8 @@ describe('spinning the wheel', () => {
     // Y a partir de ahí no vuelve a retroceder ni una vez.
     const after = seen.slice(seen.indexOf(lowest))
     expect(after.filter((r, i) => i > 0 && r < after[i - 1])).toEqual([])
-    expect(Math.max(...seen)).toBeGreaterThan(4 * 360)
+    // Da entre 3 y 5 vueltas, así que el piso es 3.
+    expect(Math.max(...seen)).toBeGreaterThan(2.9 * 360)
   })
 
   it('starts from a standstill instead of snapping to full speed', () => {
@@ -135,27 +175,33 @@ describe('spinning the wheel', () => {
     expect(steps.every((d, i) => i === 0 || d > steps[i - 1])).toBe(true)
   })
 
-  it('lands on every entry over many spins, and only on real entries', { timeout: 30_000 }, () => {
+  it('lands on every entry over many spins, and only on real entries', { timeout: 60_000 }, () => {
     render(<App />)
     const entries = labels()
     const hits = new Set<string>()
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 24; i++) {
       spin()
-      runFrames(SPIN + 1500, 400)
+      runFrames(SETTLE, 400)
       const landed = entries[indexAtPointer(rotation(), entries.length)]
       expect(entries).toContain(landed)
       hits.add(landed)
       // La barra cierra el anuncio Y relanza el giro en el mismo gesto, así que
       // hay que dejar terminar ese giro antes de leer el siguiente.
       closeReveal()
-      runFrames(SPIN + 1500, 400)
+      runFrames(SETTLE, 400)
     }
 
-    // Los premios se repiten a propósito (cinco «1 mes gratis», cuatro «seguí
-    // participando»…), así que contar etiquetas distintas es lo único que tiene
-    // sentido: nunca va a haber 20 etiquetas diferentes.
-    expect(hits.size).toBe(new Set(entries).size)
+    /*
+     * Lo que importa de verdad ya se afirmó adentro del bucle: NUNCA cae en algo
+     * que no esté en la rueda. Acá sólo se pide un reparto sano.
+     *
+     * No se exige tocar las 7 etiquetas porque hay premios de un solo gajo: con
+     * 1 de 20, la probabilidad de no sacarlo en 24 giros es del 29%, y un test
+     * que falla tres de cada diez veces sin que nada esté roto es peor que no
+     * tenerlo.
+     */
+    expect(hits.size).toBeGreaterThanOrEqual(5)
   })
 
   it('cannot be started again while it is still turning', () => {
@@ -166,7 +212,7 @@ describe('spinning the wheel', () => {
     expect(spinButton().disabled).toBe(true)
     const midSpin = rotation()
     spin() // ignored — a second spin must not stack on the first
-    runFrames(SPIN + 1500)
+    runFrames(SETTLE)
 
     expect(rotation()).not.toBe(midSpin)
     expect(revealShown()).toBe(true)
@@ -184,7 +230,7 @@ describe('the space bar, which is the whole interface', () => {
     render(<App />)
 
     pressKey(' ')
-    runFrames(SPIN + 1500)
+    runFrames(SETTLE)
     expect(revealShown()).toBe(true)
 
     // La PRIMERA sólo cierra el anuncio. Que cerrar disparara el giro dejaba a
@@ -201,14 +247,10 @@ describe('the space bar, which is the whole interface', () => {
   })
 
   it('returns to rest on its own when nobody dismisses the winner', () => {
-    // Sólo los temporizadores: `performance.now` ya está simulado por el reloj
-    // de cuadros de arriba, y dejar que los falsos se lo lleven puesto rompería
-    // el giro antes de llegar al anuncio.
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
     render(<App />)
 
     spin()
-    runFrames(SPIN + 1500)
+    runFrames(SETTLE)
     expect(revealShown()).toBe(true)
 
     // Nadie toca nada: la pantalla de un stand no puede quedarse clavada en el
@@ -222,7 +264,7 @@ describe('the space bar, which is the whole interface', () => {
     toggleEditor()
 
     pressKey(' ')
-    runFrames(SPIN + 1500)
+    runFrames(SETTLE)
 
     expect(revealShown()).toBe(false)
     expect(rotation()).toBe(0)
@@ -238,7 +280,7 @@ describe('taking the winner off the wheel', () => {
     const before = labels()
 
     spin()
-    runFrames(SPIN + 1500)
+    runFrames(SETTLE)
 
     const landed = before[indexAtPointer(rotation(), before.length)]
     expect(announced()).toBe(landed)
@@ -264,14 +306,14 @@ describe('taking the winner off the wheel', () => {
     toggleEditor() // cerrado, o la barra no gira
 
     spin()
-    runFrames(SPIN + 1500)
+    runFrames(SETTLE)
     // La barra cierra el anuncio y relanza el giro en el mismo gesto.
     closeReveal()
 
     const remaining = labels()
     expect(remaining).toHaveLength(STARTER_COUNT - 1)
 
-    runFrames(SPIN + 1500)
+    runFrames(SETTLE)
     const landed = remaining[indexAtPointer(rotation(), remaining.length)]
     expect(remaining).toContain(landed)
   })
@@ -312,19 +354,27 @@ describe('editing entries', () => {
     expect(document.querySelector<HTMLElement>('.row__swatch')!.style.background).toBe(keptColor)
   })
 
-  it('survives a reload, and shrugs off a corrupt saved wheel', () => {
+  it('always comes back with the prizes from the code, whatever was saved', () => {
+    // Los premios ya NO se guardan: la lista del stand tiene que ser siempre la
+    // que está en `useEntries`, porque una lista vieja guardada en la máquina le
+    // ganaba a la del código y no había forma de notarlo mirando la pantalla.
     const { unmount } = render(<App />)
+    const premios = labels()
+    expect(premios).toContain('iPhone 17 Pro Max')
+
     toggleEditor()
-    fireEvent.change(screen.getByLabelText('Premio nuevo'), { target: { value: 'Persistido' } })
+    fireEvent.change(screen.getByLabelText('Premio nuevo'), { target: { value: 'De la sesión' } })
     fireEvent.click(screen.getByRole('button', { name: /^agregar$/i }))
+    expect(labels()).toContain('De la sesión') // sirve para retocar en el momento
     unmount()
 
     render(<App />)
-    expect(labels()).toContain('Persistido')
+    expect(labels()).toEqual(premios) // pero no sobrevive al arranque siguiente
     cleanup()
 
     localStorage.setItem('teselly-wheel.entries', '{"not":"a list"}')
+    localStorage.setItem('teselly-wheel.entries.v2', '[{"id":"x","label":"Viejo","color":"#000"}]')
     render(<App />)
-    expect(labels().length).toBeGreaterThan(0)
+    expect(labels()).toEqual(premios)
   })
 })

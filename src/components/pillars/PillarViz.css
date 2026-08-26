@@ -718,3 +718,20 @@
      viven fuera del widget (`right:-4px`). */
   overflow: visible;
 }
+
+/*
+ * PILAR 3 EN LA PIEZA — el cuadro, más chico y sin estirar.
+ *
+ * `.pviz` es `width/height: 100%`, así que la maqueta se estiraba a los 952 × 515
+ * de la pantalla: 1.85:1 contra el 1.44:1 del viewBox. Acá se le da su
+ * proporción y un tope de alto, igual que a pilar 2. Conserva su fondo, que es
+ * la única de la pieza que lo lleva y así se pidió.
+ */
+.pviz[data-pilar3] {
+  height: 80%;
+  width: auto;
+  aspect-ratio: 505 / 351;
+  margin: auto;
+  inset: 0;
+  position: absolute;
+}
