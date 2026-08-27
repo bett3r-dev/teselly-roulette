@@ -72,6 +72,50 @@ body,
   height: 100%;
 }
 
+/*
+ * Higiene de kiosco: nada de lo que delata a un navegador. Ni rebote elástico
+ * al arrastrar, ni pinch-zoom, ni selección de texto, ni el destello gris de
+ * Android al tocar, ni el menú de "copiar imagen" al mantener apretado. En el
+ * televisor no hay mouse: el cursor se esconde y sólo reaparece en el panel de
+ * carga (.editor), que sí se opera con teclado y mouse.
+ */
+html {
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  cursor: none;
+}
+
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.editorveil--on,
+.editor,
+.editor * {
+  cursor: auto;
+}
+
+.editor button,
+.editor label,
+.editor [role='button'] {
+  cursor: pointer;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* El panel de carga sí es una interfaz de trabajo: ahí se escribe y se copia. */
+.editor input,
+.editor textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /* Es una pieza de señalización: no scrollea nunca, ni un pixel. */
 body {
   margin: 0;

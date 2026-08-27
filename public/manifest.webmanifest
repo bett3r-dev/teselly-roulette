@@ -1,0 +1,26 @@
+{
+  "name": "Ruleta · Teselly",
+  "short_name": "Ruleta",
+  "description": "La ruleta de Teselly: girá y llevate un premio.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#0C3238",
+  "theme_color": "#0C3238",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

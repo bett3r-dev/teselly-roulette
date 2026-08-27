@@ -245,3 +245,39 @@ What reduced motion *does* still switch off is what the preference exists for:
 the winner celebration's bulb flash (~4 Hz, photosensitivity territory) and the
 long spin, which `useSpin` already shortens to 900 ms on its own. See the note at
 the bottom of `src/index.css`.
+
+## Kiosk mode
+
+The piece is signage: on the stand it should fill the screen with no tabs, no URL
+bar and nothing that says "browser". Three layers, from softest to hardest — they
+stack, and each one alone is already an improvement.
+
+**1. Fullscreen on first touch (automatic, nothing to set up).** Browsers refuse
+to go fullscreen on load — it takes a user gesture — so `useKiosk` hooks the
+first `pointerdown`/`keydown` the piece receives, whatever it is. The first
+person who walks up to spin puts it fullscreen without noticing, and no
+"tap to start" screen is needed. The same hook holds a **screen wake lock**, so a
+tablet doesn't blank itself between spins.
+
+**2. Install it as a PWA (recommended for the stand's own device).** The
+manifest declares `display: fullscreen`, so once installed the piece opens like a
+native app — no browser chrome at all, and it survives reboots. In Chrome:
+⋮ → *Cast, save and share* → *Install page as app*. On an Android tablet:
+⋮ → *Add to Home screen*.
+
+**3. Launch the browser in kiosk mode (hardest, for a machine you control).**
+Nothing to install and there is no way out of the page short of `Alt+F4`:
+
+```bash
+# macOS
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --kiosk --app="https://bett3r-dev.github.io/teselly-roulette/"
+
+# Linux / Raspberry Pi signage box
+google-chrome --kiosk --noerrdialogs --disable-infobars \
+  --disable-session-crashed-bubble --autoplay-policy=no-user-gesture-required \
+  --app="https://bett3r-dev.github.io/teselly-roulette/"
+```
+
+Note that the loading panel is still one keystroke away (`E`) in every mode, so
+the prizes can be loaded on the stand's own device without leaving kiosk mode.

@@ -7,6 +7,7 @@ import { Wheel } from './components/Wheel'
 import { Showreel } from './components/Showreel'
 import { WinnerReveal } from './components/WinnerReveal'
 import { useEntries } from './hooks/useEntries'
+import { useKiosk } from './hooks/useKiosk'
 import { usePersisted } from './hooks/usePersisted'
 import { useSound } from './hooks/useSound'
 import { useSpin } from './hooks/useSpin'
@@ -25,6 +26,8 @@ import type { Entry } from './types'
 export const REVEAL_DELAY_MS = 1800
 
 export default function App() {
+  // Pantalla completa y pantalla despierta: ver useKiosk.
+  useKiosk()
   const store = useEntries()
   const [sound, setSound] = usePersisted('teselly-wheel.sound', true)
   const [removeWinner, setRemoveWinner] = usePersisted('teselly-wheel.remove-winner', false)
