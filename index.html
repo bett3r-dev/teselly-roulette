@@ -2,7 +2,13 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover + user-scalable=no: es una pieza de kiosco, no un
+         documento. Nadie tiene que poder hacer pinch-zoom sobre la ruleta, y el
+         lienzo tiene que llegar hasta el borde físico de la pantalla. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#0C3238" />
     <meta
       name="description"
@@ -11,12 +17,20 @@
     <title>Ruleta · Teselly</title>
     <link rel="icon" type="image/svg+xml" href="/teselly-roulette/favicon.svg" />
 
+    <!-- Modo kiosco: instalada (PWA) la pieza abre sin barra de URL ni pestañas.
+         Ver README § Modo kiosco. -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Ruleta" />
+
     <!-- Aktiv Grotesk se declara en src/index.css; se precargan porque los dos
          pesos se usan por encima del pliegue y no hay pliegue: todo lo es. -->
     <link rel="preload" href="/teselly-roulette/fonts/AktivGrotesk-SemiBold.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/teselly-roulette/fonts/AktivGrotesk-Bold.woff2" as="font" type="font/woff2" crossorigin />
-    <script type="module" crossorigin src="/teselly-roulette/assets/index-D0BpAw66.js"></script>
-    <link rel="stylesheet" crossorigin href="/teselly-roulette/assets/index-B6SIL9x8.css">
+    <script type="module" crossorigin src="/teselly-roulette/assets/index-B9OgWXo8.js"></script>
+    <link rel="stylesheet" crossorigin href="/teselly-roulette/assets/index-cE2CSXSp.css">
   </head>
   <body>
     <div id="root"></div>
