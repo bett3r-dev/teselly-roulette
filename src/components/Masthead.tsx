@@ -105,13 +105,18 @@ export const Masthead = memo(function Masthead() {
     let last = ''
 
     const measure = () => {
-      // `offsetWidth/Height` y no `getBoundingClientRect`: el rect viene con
+      // `clientWidth/Height` y no `getBoundingClientRect`: el rect viene con
       // todos los `transform` de los ancestros aplicados, y estas medidas se
       // vuelven a escribir como `left`/`top` en px SIN escalar. Con un ancestro
-      // escalado las bombitas se amontonaban en una esquina. El offset es la
+      // escalado las bombitas se amontonaban en una esquina. El client es la
       // medida de layout, que es la que corresponde.
-      const width = el.offsetWidth
-      const height = el.offsetHeight
+      //
+      // Y es el CLIENT y no el OFFSET porque `.sign__bulbs` es `inset: 0`, o sea
+      // que su origen es la caja de padding, por dentro del borde. Midiendo el
+      // offset (que incluye los 2px de borde de cada lado) el contorno quedaba
+      // dos píxeles corrido hacia abajo y a la derecha del borde que dibuja.
+      const width = el.clientWidth
+      const height = el.clientHeight
       const key = `${Math.round(width)}x${Math.round(height)}`
       if (key === last || width < 1) return
       last = key

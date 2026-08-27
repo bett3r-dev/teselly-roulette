@@ -157,20 +157,20 @@ describe('spinning the wheel', () => {
     render(<App />)
     spin()
 
-    // Se deja pasar el culatazo (12% de los 9.4 s ≈ 1130 ms) y se mide el tramo
-    // siguiente, que es donde la curva vieja saltaba a velocidad máxima de un
-    // cuadro al otro — lo que se sentía instantáneo.
-    runFrames(1200, 50)
+    // Se deja pasar el culatazo (12% del giro) y se mide el tramo siguiente,
+    // que es donde la curva vieja saltaba a velocidad máxima de un cuadro al
+    // otro — lo que se sentía instantáneo.
+    runFrames(Math.ceil(SPIN * 0.12) + 60, 50)
 
     const seen: number[] = []
-    while (seen.length < 13) {
+    while (seen.length < 9) {
       runFrames(50, 50)
       seen.push(rotation())
     }
 
     // Cada cuadro avanza MÁS que el anterior: la rueda está acelerando, no
-    // arrancando a fondo. (13 cuadros son 650 ms, cómodamente dentro del tramo
-    // de aceleración, que termina cerca de los 2.5 s.)
+    // arrancando a fondo. (9 cuadros son 450 ms, cómodamente dentro del tramo
+    // de aceleración, que va del 12% al 16,4% del giro.)
     const steps = seen.slice(1).map((r, i) => r - seen[i])
     expect(steps.every((d, i) => i === 0 || d > steps[i - 1])).toBe(true)
   })

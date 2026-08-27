@@ -200,7 +200,7 @@ export function Wheel({
   const speed = Math.min(Math.abs(velocity) / 700, 1)
   const push = phase > 0.72 ? (phase - 0.72) / 0.28 : 0
   const rebound = -Math.sin(phase * 42) * Math.exp(-phase * 13) * speed * 5
-  const deflection = push * MAX_DEFLECT + rebound
+  const deflection = -(push * MAX_DEFLECT + rebound)
 
   // La persecución se lee de la rotación misma, así que frena junto con ella.
   const chase = Math.floor(rotation / 9)

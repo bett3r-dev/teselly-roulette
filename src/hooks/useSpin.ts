@@ -4,24 +4,24 @@ import { randomFloat, randomInt, weightedInt } from '../lib/random'
 
 /** Lo que dura un giro. Se exporta porque los tests avanzan el reloj a mano y
     con un número copiado leían la rueda a mitad de camino. */
-export const SPIN_MS = 34_000
+export const SPIN_MS = 9_000
 const REDUCED_MS = 900
 /*
  * Vueltas y duración van juntas: son la VELOCIDAD.
  *
  * Estirar sólo el tiempo dejando las vueltas de antes daría una rueda lenta pero
  * también floja de arranque; y subir las vueltas sin el tiempo la haría girar más
- * rápido. Con 17 s y 3-5 vueltas la rueda arranca con ganas, cruza despacio y se
+ * rápido. Con 12 s y 6-10 vueltas la rueda arranca con ganas, cruza rápido y se
  * pasa los últimos segundos decidiéndose gajo por gajo, que es donde está la
  * gracia en un stand: la gente alcanza a leer los premios que va pasando.
  */
 /*
  * VUELTAS. Subieron de 3-5 a 6-10, y no es un capricho: son lo que hace que la
- * rueda pueda ir despacio y tardar mucho AL MISMO TIEMPO.
+ * rueda tenga pique sin quedarse corta de recorrido.
  *
- * Una rueda que da 4 vueltas en 34 s tiene que arrastrarse; una que da 8 puede
- * salir a paso normal y frenar de a poco durante medio minuto. El pico bajó de
- * 294°/s a 228°/s —o sea que gira MÁS LENTO— aunque dé el doble de vueltas.
+ * Con 6-10 vueltas en 12 s el pico ronda los 650°/s: sale con fuerza, se ve
+ * girar de verdad y todavía le queda frenada larga para pasar gajo por gajo
+ * sobre el final.
  */
 const TURNS_MIN = 6
 const TURNS_SPREAD = 4

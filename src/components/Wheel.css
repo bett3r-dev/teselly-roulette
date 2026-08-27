@@ -30,10 +30,22 @@
 
 /* ---- cara ---------------------------------------------------------------- */
 
-.wheel__face {
-  transform-box: fill-box;
-  transform-origin: center;
-}
+/*
+ * La cara NO lleva `transform-box` ni `transform-origin`, a propósito.
+ *
+ * Llevaba `fill-box` + `center`, que la hace girar alrededor del centro de su
+ * BOUNDING BOX y no del centro de la rueda. Y esa caja no está centrada: la
+ * encierran las clavijas y las etiquetas, que sólo quedan simétricas cuando la
+ * cantidad de premios es PAR. Con cantidad impar la caja se corre —con siete,
+ * unas 3 unidades hacia arriba— y la cara entera queda dibujada corrida del
+ * aro, del cubo y del puntero.
+ *
+ * Sin la regla vale el default de SVG, `view-box` con origen `0 0`: el (0,0)
+ * del viewBox, que es el centro exacto de la rueda. Ojo, `view-box` con un
+ * `transform-origin` explícito NO sirve de reemplazo — en Chrome esos píxeles
+ * no se miden desde el `min-x`/`min-y` del viewBox y la rueda se va a cualquier
+ * lado de la pantalla.
+ */
 
 .seg__label {
   font-family: var(--font-inter);

@@ -23,13 +23,13 @@ export const MAX_LABEL = 40
  * así se leen de una.
  */
 const STARTER: { label: string; pct: number }[] = [
-  { label: 'iPhone 17 Pro Max', pct: 5 },
-  { label: '1 mes gratis', pct: 25 },
+  { label: 'iPhone 17 Pro Max', pct: 10 },
+  { label: '1 mes gratis', pct: 15 },
   { label: '3 meses gratis', pct: 15 },
   { label: 'Seguí participando', pct: 20 },
-  { label: '15% descuento un año', pct: 15 },
-  { label: 'Camiseta Argentina', pct: 5 },
-  { label: '25% descuento 6 meses', pct: 15 },
+  { label: '15% descuento un año', pct: 20 },
+  { label: 'Camiseta Argentina', pct: 10 },
+  { label: '25% descuento 6 meses', pct: 10 },
 ]
 
 function seed(): Entry[] {
